@@ -56,7 +56,8 @@ export default function Versiculos() {
           {filtrados.map((item) => (
             <Link
               key={item.id}
-              to={`/nota/${item.notaId}`}
+              to="/versiculo"
+              state={{ referencia: item.referencia, notaId: item.notaId, fecha: formatearFecha(item.fecha) }}
               className="block rounded-xl border border-line bg-white p-3.5 active:bg-cream-dark/40"
             >
               <p className="font-semibold text-sage-dark">{item.referencia}</p>
