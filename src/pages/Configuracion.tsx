@@ -20,7 +20,7 @@ export default function Configuracion() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `fenotes-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `daily-bread-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -34,7 +34,7 @@ export default function Configuracion() {
         importarJSON(String(reader.result));
         setMensaje({ tipo: 'ok', texto: 'Notas importadas correctamente. Vuelve al inicio para verlas.' });
       } catch {
-        setMensaje({ tipo: 'error', texto: 'El archivo no es un respaldo válido de FeNotes.' });
+        setMensaje({ tipo: 'error', texto: 'El archivo no es un respaldo válido de Daily Bread.' });
       }
     };
     reader.readAsText(file);

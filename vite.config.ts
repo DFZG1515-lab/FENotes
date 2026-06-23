@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'FeNotes',
-        short_name: 'FeNotes',
+        name: 'Daily Bread',
+        short_name: 'Daily Bread',
         description: 'Toma notas durante servicios y cultos, y genera resúmenes con IA',
         theme_color: '#5b7a63',
         background_color: '#faf7f2',

@@ -7,7 +7,7 @@ export default function Header() {
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sage text-cream">
           <BookOpenText size={20} strokeWidth={2.2} />
         </div>
-        <h1 className="text-lg font-semibold tracking-tight text-bark">FeNotes</h1>
+        <h1 className="text-lg font-semibold tracking-tight text-bark">Daily Bread</h1>
       </div>
     </header>
   );
