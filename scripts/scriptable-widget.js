@@ -11,10 +11,14 @@
 
 const GIST_URL = "PEGA_AQUI_LA_URL_QUE_TE_DIO_LA_APP";
 
-const SAGE = new Color("#5b7a63");
-const SAGE_DARK = new Color("#34473b");
-const CLAY = new Color("#c98a5e");
-const CREAM = new Color("#faf7f2");
+// Misma paleta clara/oscura que usa la app (src/index.css), elegida según el modo del sistema.
+const MODO_OSCURO = Device.isUsingDarkAppearance();
+
+const GRADIENTE_INICIO = new Color(MODO_OSCURO ? "#262220" : "#5b7a63");
+const GRADIENTE_FIN = new Color(MODO_OSCURO ? "#1d1a16" : "#34473b");
+const TEXTO = new Color(MODO_OSCURO ? "#f1ebe0" : "#faf7f2");
+const ACENTO = new Color(MODO_OSCURO ? "#dba074" : "#c98a5e");
+const TEXTO_SOBRE_ACENTO = new Color(MODO_OSCURO ? "#2a1f16" : "#faf7f2");
 
 async function obtenerNota() {
   try {
@@ -34,7 +38,7 @@ function formatearFecha(fecha) {
 
 function fondoConProfundidad() {
   const gradiente = new LinearGradient();
-  gradiente.colors = [SAGE, SAGE_DARK];
+  gradiente.colors = [GRADIENTE_INICIO, GRADIENTE_FIN];
   gradiente.locations = [0, 1];
   gradiente.startPoint = new Point(0, 0);
   gradiente.endPoint = new Point(1, 1);
@@ -49,7 +53,7 @@ function crearWidget(nota) {
   if (!nota) {
     const txt = w.addText("Aún no hay notas en Daily Bread");
     txt.font = Font.mediumSystemFont(13);
-    txt.textColor = CREAM;
+    txt.textColor = TEXTO;
     return w;
   }
 
@@ -58,7 +62,7 @@ function crearWidget(nota) {
 
   // Franja de acento (lomo de libro) a la izquierda.
   const franja = fila.addStack();
-  franja.backgroundColor = CLAY;
+  franja.backgroundColor = ACENTO;
   franja.cornerRadius = 2;
   franja.size = new Size(3, 112);
 
@@ -70,18 +74,18 @@ function crearWidget(nota) {
   // Fecha como "sello" / píldora.
   const pill = contenido.addStack();
   pill.layoutHorizontally();
-  pill.backgroundColor = CLAY;
+  pill.backgroundColor = ACENTO;
   pill.cornerRadius = 6;
   pill.setPadding(3, 8, 3, 8);
   const txtFecha = pill.addText(formatearFecha(nota.fecha).toUpperCase());
   txtFecha.font = Font.semiboldSystemFont(10);
-  txtFecha.textColor = CREAM;
+  txtFecha.textColor = TEXTO_SOBRE_ACENTO;
 
   contenido.addSpacer(7);
 
   const titulo = contenido.addText(nota.tema || nota.predicador || "Nota");
   titulo.font = Font.boldSystemFont(15);
-  titulo.textColor = CREAM;
+  titulo.textColor = TEXTO;
   titulo.minimumScaleFactor = 0.8;
   titulo.lineLimit = 2;
 
@@ -89,7 +93,7 @@ function crearWidget(nota) {
 
   const mensaje = contenido.addText(nota.mensaje || "");
   mensaje.font = Font.regularSystemFont(12);
-  mensaje.textColor = CREAM;
+  mensaje.textColor = TEXTO;
   mensaje.textOpacity = 0.88;
   mensaje.lineLimit = 4;
   mensaje.minimumScaleFactor = 0.85;
@@ -104,7 +108,7 @@ function crearWidget(nota) {
   if (nota.predicador) {
     const txtPredicador = pie.addText(nota.predicador);
     txtPredicador.font = Font.italicSystemFont(10);
-    txtPredicador.textColor = CREAM;
+    txtPredicador.textColor = TEXTO;
     txtPredicador.textOpacity = 0.65;
   }
 
@@ -112,7 +116,7 @@ function crearWidget(nota) {
 
   const marca = pie.addImage(SFSymbol.named("cross.case.fill").image);
   marca.imageSize = new Size(13, 13);
-  marca.tintColor = CREAM;
+  marca.tintColor = TEXTO;
   marca.imageOpacity = 0.35;
 
   return w;
