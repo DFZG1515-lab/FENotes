@@ -1,10 +1,9 @@
 import { NavLink } from 'react-router-dom';
-import { NotebookText, BookMarked, Settings } from 'lucide-react';
+import { NotebookText, BookMarked } from 'lucide-react';
 
 const items = [
   { to: '/', label: 'Notas', icon: NotebookText, end: true },
   { to: '/versiculos', label: 'Versículos', icon: BookMarked, end: false },
-  { to: '/configuracion', label: 'Configuración', icon: Settings, end: false },
 ];
 
 export default function BottomNav() {
