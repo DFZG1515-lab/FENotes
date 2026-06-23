@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2, Pencil, Sparkles, Trash2 } from 'lucide-react';
 import { deleteNota, getConfiguracion, getNota, saveNota } from '../lib/storage';
 import { GroqError, generarResumen } from '../lib/groq';
+import { sincronizarWidgetSilencioso } from '../lib/widgetSync';
 import ResumenCard from '../components/ResumenCard';
 import type { EstiloResumen } from '../types';
 
@@ -36,6 +37,7 @@ export default function DetalleNota() {
       const resumen = await generarResumen(nota!, estilo, apiKey);
       const actualizada = { ...nota!, resumen, actualizadoEn: new Date().toISOString() };
       saveNota(actualizada);
+      sincronizarWidgetSilencioso(actualizada);
       setNota(actualizada);
     } catch (e) {
       setError(e instanceof GroqError ? e.message : 'Ocurrió un error inesperado al generar el resumen.');

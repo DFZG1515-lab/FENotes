@@ -13,6 +13,7 @@ import {
 } from '../lib/storage';
 import { generarId } from '../lib/id';
 import { detectarVersiculos, normalizarReferencia } from '../lib/versiculos';
+import { sincronizarWidgetSilencioso } from '../lib/widgetSync';
 import type { Nota, Versiculo } from '../types';
 
 function hoyISO(): string {
@@ -103,6 +104,7 @@ export default function NuevaNota() {
   function guardar() {
     const final: Nota = { ...nota, actualizadoEn: new Date().toISOString() };
     saveNota(final);
+    sincronizarWidgetSilencioso(final);
     if (!editando) limpiarBorrador();
     navigate(`/nota/${final.id}`);
   }

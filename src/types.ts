@@ -29,6 +29,8 @@ export interface Nota {
 
 export interface Configuracion {
   apiKey: string;
+  githubToken?: string;
+  gistId?: string;
 }
 
 export interface FeNotesData {

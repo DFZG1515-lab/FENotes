@@ -1,17 +1,60 @@
 import { useRef, useState } from 'react';
-import { Download, Upload, ShieldCheck, Eye, EyeOff } from 'lucide-react';
-import { exportarJSON, getConfiguracion, getTotalNotas, importarJSON, saveConfiguracion } from '../lib/storage';
+import { Download, Upload, ShieldCheck, Eye, EyeOff, RefreshCw, Copy, Check } from 'lucide-react';
+import { exportarJSON, getConfiguracion, getNotas, getTotalNotas, importarJSON, saveConfiguracion } from '../lib/storage';
+import { WidgetSyncError, sincronizarWidget } from '../lib/widgetSync';
 
 export default function Configuracion() {
   const [apiKey, setApiKey] = useState(() => getConfiguracion().apiKey);
   const [mostrarKey, setMostrarKey] = useState(false);
+  const [githubToken, setGithubToken] = useState(() => getConfiguracion().githubToken ?? '');
+  const [mostrarToken, setMostrarToken] = useState(false);
+  const [rawUrl, setRawUrl] = useState('');
+  const [sincronizando, setSincronizando] = useState(false);
+  const [copiado, setCopiado] = useState(false);
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const total = getTotalNotas();
 
   function guardarApiKey() {
-    saveConfiguracion({ apiKey: apiKey.trim() });
+    saveConfiguracion({ ...getConfiguracion(), apiKey: apiKey.trim() });
     setMensaje({ tipo: 'ok', texto: 'API key guardada en este navegador.' });
+  }
+
+  function guardarGithubToken() {
+    saveConfiguracion({ ...getConfiguracion(), githubToken: githubToken.trim() });
+    setMensaje({ tipo: 'ok', texto: 'Token de GitHub guardado.' });
+  }
+
+  async function sincronizarAhora() {
+    const ultima = getNotas()[0];
+    if (!ultima) {
+      setMensaje({ tipo: 'error', texto: 'Aún no tienes ninguna nota guardada para sincronizar.' });
+      return;
+    }
+    setSincronizando(true);
+    setMensaje(null);
+    try {
+      const url = await sincronizarWidget(ultima);
+      if (!url) {
+        setMensaje({ tipo: 'error', texto: 'Primero guarda tu token de GitHub arriba.' });
+        return;
+      }
+      setRawUrl(url);
+      setMensaje({ tipo: 'ok', texto: 'Widget sincronizado. Copia la URL de abajo en tu script de Scriptable.' });
+    } catch (e) {
+      setMensaje({
+        tipo: 'error',
+        texto: e instanceof WidgetSyncError ? e.message : 'No se pudo sincronizar. Revisa tu token de GitHub.',
+      });
+    } finally {
+      setSincronizando(false);
+    }
+  }
+
+  function copiarUrl() {
+    navigator.clipboard.writeText(rawUrl);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 2000);
   }
 
   function exportar() {
@@ -78,6 +121,69 @@ export default function Configuracion() {
         >
           Guardar API key
         </button>
+      </section>
+
+      <section className="mb-6 rounded-2xl border border-line bg-white p-4">
+        <h3 className="mb-1 text-sm font-semibold text-bark">Widget para iPhone (Scriptable)</h3>
+        <p className="mb-3 flex items-start gap-1.5 text-xs leading-relaxed text-bark-light">
+          <ShieldCheck size={14} className="mt-0.5 shrink-0 text-sage" />
+          Para mostrar tu nota más reciente en un widget de pantalla de inicio, necesitas un token de GitHub con
+          permiso <strong>"gist"</strong> únicamente. Créalo en github.com/settings/tokens (Generate new token →
+          classic → marca solo "gist"). Cada vez que guardes una nota o generes un resumen, se publica
+          automáticamente en un Gist privado tuyo.
+        </p>
+        <div className="relative mb-3">
+          <input
+            type={mostrarToken ? 'text' : 'password'}
+            value={githubToken}
+            onChange={(e) => setGithubToken(e.target.value)}
+            placeholder="ghp_..."
+            className="w-full rounded-xl border border-line bg-white px-4 py-3 pr-12 text-base text-bark focus:border-sage focus:outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => setMostrarToken((v) => !v)}
+            aria-label={mostrarToken ? 'Ocultar token' : 'Mostrar token'}
+            className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-bark-light"
+          >
+            {mostrarToken ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={guardarGithubToken}
+          className="mb-2 w-full rounded-xl bg-sage py-3 text-sm font-semibold text-cream active:bg-sage-dark"
+        >
+          Guardar token de GitHub
+        </button>
+        <button
+          type="button"
+          onClick={sincronizarAhora}
+          disabled={sincronizando}
+          className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-line text-sm font-medium text-bark active:bg-cream-dark/40 disabled:opacity-50"
+        >
+          <RefreshCw size={16} className={sincronizando ? 'animate-spin' : ''} />
+          Sincronizar ahora
+        </button>
+
+        {rawUrl && (
+          <div className="mt-3 rounded-xl bg-cream-dark/40 p-3">
+            <p className="mb-1.5 text-xs font-medium text-bark-light">
+              URL para pegar en tu script de Scriptable:
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap text-xs text-bark">{rawUrl}</code>
+              <button
+                type="button"
+                onClick={copiarUrl}
+                aria-label="Copiar URL"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-sage-dark"
+              >
+                {copiado ? <Check size={15} /> : <Copy size={15} />}
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       {mensaje && (
