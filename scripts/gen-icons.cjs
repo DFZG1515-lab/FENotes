@@ -2,31 +2,28 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 
-// Paths exactos del ícono "book-open-text" de lucide-react (viewBox 0 0 24 24).
-const ICON_PATHS = [
-  'M12 7v14',
-  'M16 12h2',
-  'M16 8h2',
-  'M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z',
-  'M6 12h2',
-  'M6 8h2',
-];
-
 const BG = '#5b7a63'; // sage
 const FG = '#faf7f2'; // cream
 
+// Logo: una hoja de notas con una pluma de ave dibujando una cruz, estilo línea minimalista.
 function buildSvg(size) {
-  const iconBoxRatio = 0.56; // misma proporción ícono/contenedor que el header de la app
+  const iconBoxRatio = 0.62;
   const iconSize = size * iconBoxRatio;
   const scale = iconSize / 24;
   const offset = (size - iconSize) / 2;
 
-  const paths = ICON_PATHS.map((d) => `<path d="${d}" />`).join('');
-
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
   <rect width="${size}" height="${size}" fill="${BG}" />
-  <g transform="translate(${offset} ${offset}) scale(${scale})" fill="none" stroke="${FG}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    ${paths}
+  <g transform="translate(${offset} ${offset}) scale(${scale})" fill="none" stroke="${FG}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- hoja de notas -->
+    <rect x="3" y="2.5" width="13.5" height="19" rx="1.3" />
+    <!-- cruz dibujada en la hoja -->
+    <line x1="9.7" y1="6.2" x2="9.7" y2="16.5" />
+    <line x1="6.4" y1="9.3" x2="13" y2="9.3" />
+    <!-- pluma de ave: asta -->
+    <line x1="9.7" y1="16.5" x2="19.5" y2="4.2" />
+    <!-- pluma de ave: barbas (plumón) -->
+    <path d="M11.3 14.4 C13.5 13.6 15.8 11.4 17.2 8.6 C18 7 18.5 5.6 18.7 4.6 C17.7 5.1 16.2 6 14.7 7.6 C12.5 9.9 11.4 12.5 11.3 14.4 Z" />
   </g>
 </svg>`;
 }
