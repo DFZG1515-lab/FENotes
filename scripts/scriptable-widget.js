@@ -11,8 +11,8 @@
 
 const GIST_URL = "PEGA_AQUI_LA_URL_QUE_TE_DIO_LA_APP";
 
-// Misma paleta clara/oscura que usa la app (src/index.css), elegida según el modo del sistema.
-const MODO_OSCURO = Device.isUsingDarkAppearance();
+// Paleta oscura de la app (src/index.css), siempre activa sin importar el modo del sistema.
+const MODO_OSCURO = true;
 
 const GRADIENTE_INICIO = new Color(MODO_OSCURO ? "#262220" : "#5b7a63");
 const GRADIENTE_FIN = new Color(MODO_OSCURO ? "#1d1a16" : "#34473b");
