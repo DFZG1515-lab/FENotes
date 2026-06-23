@@ -30,8 +30,16 @@ function buildSvg(size) {
     <line x1="6.4" y1="9.3" x2="13" y2="9.3" />
     <!-- pluma de ave: asta -->
     <line x1="9.7" y1="16.5" x2="19.5" y2="4.2" />
-    <!-- pluma de ave: barbas (plumón) -->
-    <path d="M11.3 14.4 C13.5 13.6 15.8 11.4 17.2 8.6 C18 7 18.5 5.6 18.7 4.6 C17.7 5.1 16.2 6 14.7 7.6 C12.5 9.9 11.4 12.5 11.3 14.4 Z" />
+    <!-- pluma de ave: contorno del plumón (más ancho para dar lugar a las barbas) -->
+    <path d="M11.3 14.4 C14.2 14.16 16.89 12.27 18.22 9.41 C18.78 7.62 18.89 5.91 18.7 4.6 C17.7 5.1 16.2 6 14.7 7.6 C12.5 9.9 11.4 12.5 11.3 14.4 Z" />
+    <!-- pluma de ave: barbas (textura de plumón) -->
+    <g stroke-width="${STROKE_W * 0.75}">
+      <path d="M11.66 14.04 L12.16 14.79" />
+      <path d="M13.42 11.83 L14.15 12.92" />
+      <path d="M14.8 10.1 L15.63 11.36" />
+      <path d="M16.17 8.38 L16.83 9.39" />
+      <path d="M17.54 6.66 L17.93 7.25" />
+    </g>
   </g>
 </svg>`;
 }
