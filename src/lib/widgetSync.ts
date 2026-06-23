@@ -1,8 +1,16 @@
-import { getConfiguracion, saveConfiguracion } from './storage';
+import {
+  getConfiguracion,
+  getNotas,
+  getPredicadoresUsados,
+  getUltimaIglesia,
+  restaurarNotasDesdeBackup,
+  saveConfiguracion,
+} from './storage';
 import type { Nota } from '../types';
 
-const NOMBRE_ARCHIVO = 'daily-bread-latest.json';
-const DESCRIPCION = 'Daily Bread - última nota (para widget de Scriptable)';
+const ARCHIVO_WIDGET = 'daily-bread-latest.json';
+const ARCHIVO_BACKUP = 'daily-bread-backup.json';
+const DESCRIPCION = 'Daily Bread - widget y respaldo de notas';
 
 function construirMensaje(nota: Nota): string {
   if (nota.resumen) {
@@ -11,7 +19,7 @@ function construirMensaje(nota: Nota): string {
   return nota.contenido.slice(0, 220);
 }
 
-function construirPayload(nota: Nota) {
+function construirPayloadWidget(nota: Nota) {
   return {
     fecha: nota.fecha,
     iglesia: nota.iglesia,
@@ -24,13 +32,28 @@ function construirPayload(nota: Nota) {
   };
 }
 
+/** Respaldo completo de notas, sin incluir API keys ni tokens. */
+function construirPayloadBackup() {
+  return {
+    notas: getNotas(),
+    ultimaIglesia: getUltimaIglesia(),
+    predicadoresUsados: getPredicadoresUsados(),
+    respaldadoEn: new Date().toISOString(),
+  };
+}
+
 export class WidgetSyncError extends Error {}
+
+interface ResultadoGist {
+  gistId: string;
+  owner: string;
+}
 
 async function publicarGist(
   token: string,
   gistId: string | undefined,
-  contenido: string,
-): Promise<{ gistId: string; rawUrl: string }> {
+  files: Record<string, { content: string }>,
+): Promise<ResultadoGist> {
   const url = gistId ? `https://api.github.com/gists/${gistId}` : 'https://api.github.com/gists';
   const method = gistId ? 'PATCH' : 'POST';
 
@@ -41,33 +64,35 @@ async function publicarGist(
       Accept: 'application/vnd.github+json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      description: DESCRIPCION,
-      public: false,
-      files: { [NOMBRE_ARCHIVO]: { content: contenido } },
-    }),
+    body: JSON.stringify({ description: DESCRIPCION, public: false, files }),
   });
 
   if (!response.ok) {
-    throw new WidgetSyncError(`No se pudo sincronizar el widget (código ${response.status}).`);
+    throw new WidgetSyncError(`No se pudo sincronizar (código ${response.status}). Revisa tu token de GitHub.`);
   }
 
   const data = await response.json();
-  const rawUrl = `https://gist.githubusercontent.com/${data.owner.login}/${data.id}/raw/${NOMBRE_ARCHIVO}`;
-  return { gistId: data.id, rawUrl };
+  return { gistId: data.id, owner: data.owner.login };
 }
 
+function rawUrl(owner: string, gistId: string, archivo: string): string {
+  return `https://gist.githubusercontent.com/${owner}/${gistId}/raw/${archivo}`;
+}
+
+/** Sincroniza el widget (última nota) y el respaldo completo de notas en un mismo Gist privado. */
 export async function sincronizarWidget(nota: Nota): Promise<string | null> {
   const config = getConfiguracion();
   if (!config.githubToken) return null;
 
-  const contenido = JSON.stringify(construirPayload(nota), null, 2);
-  const { gistId, rawUrl } = await publicarGist(config.githubToken, config.gistId, contenido);
+  const { gistId, owner } = await publicarGist(config.githubToken, config.gistId, {
+    [ARCHIVO_WIDGET]: { content: JSON.stringify(construirPayloadWidget(nota), null, 2) },
+    [ARCHIVO_BACKUP]: { content: JSON.stringify(construirPayloadBackup(), null, 2) },
+  });
 
-  if (gistId !== config.gistId) {
-    saveConfiguracion({ ...config, gistId });
+  if (gistId !== config.gistId || owner !== config.githubUsername) {
+    saveConfiguracion({ ...config, gistId, githubUsername: owner });
   }
-  return rawUrl;
+  return rawUrl(owner, gistId, ARCHIVO_WIDGET);
 }
 
 /** Sincroniza sin lanzar errores a la UI; se usa como efecto secundario al guardar notas. */
@@ -75,4 +100,31 @@ export function sincronizarWidgetSilencioso(nota: Nota): void {
   sincronizarWidget(nota).catch((err) => {
     console.warn('No se pudo sincronizar el widget de Scriptable:', err);
   });
+}
+
+export async function restaurarBackupDesdeGitHub(): Promise<number> {
+  const config = getConfiguracion();
+  if (!config.githubUsername || !config.gistId) {
+    throw new WidgetSyncError('Primero sincroniza el widget al menos una vez desde este u otro dispositivo.');
+  }
+
+  const url = rawUrl(config.githubUsername, config.gistId, ARCHIVO_BACKUP) + `?t=${Date.now()}`;
+  let response: Response;
+  try {
+    response = await fetch(url);
+  } catch {
+    throw new WidgetSyncError('No se pudo conectar a GitHub. Revisa tu conexión.');
+  }
+
+  if (!response.ok) {
+    throw new WidgetSyncError('No se encontró ningún respaldo en tu Gist de GitHub.');
+  }
+
+  const backup = await response.json();
+  if (!Array.isArray(backup?.notas)) {
+    throw new WidgetSyncError('El respaldo encontrado no tiene un formato válido.');
+  }
+
+  restaurarNotasDesdeBackup(backup);
+  return backup.notas.length;
 }

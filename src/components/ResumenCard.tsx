@@ -33,7 +33,7 @@ export default function ResumenCard({ resumen }: { resumen: Resumen }) {
             <h4 className="mb-1 font-semibold text-bark">Versículos clave</h4>
             <div className="flex flex-wrap gap-2">
               {resumen.versiculosClave.map((v, i) => (
-                <span key={i} className="rounded-full bg-white px-3 py-1 text-xs font-medium text-sage-dark">
+                <span key={i} className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-sage-dark">
                   {v}
                 </span>
               ))}

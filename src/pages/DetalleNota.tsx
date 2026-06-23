@@ -1,15 +1,47 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Loader2, Pencil, Sparkles, Trash2 } from 'lucide-react';
-import { deleteNota, getConfiguracion, getNota, saveNota } from '../lib/storage';
-import { GroqError, generarResumen } from '../lib/groq';
+import { Loader2, Pencil, Sparkles, Trash2, Share2, Star } from 'lucide-react';
+import { deleteNota, getNota, saveNota } from '../lib/storage';
+import { AIError, generarResumenIA } from '../lib/ai';
 import { sincronizarWidgetSilencioso } from '../lib/widgetSync';
 import ResumenCard from '../components/ResumenCard';
-import type { EstiloResumen } from '../types';
+import type { EstiloResumen, Nota } from '../types';
 
 function formatearFecha(fecha: string): string {
   const d = new Date(fecha + 'T00:00:00');
   return d.toLocaleDateString('es', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function construirTextoCompartir(nota: Nota): string {
+  const partes: string[] = [];
+  partes.push(`${nota.tema || 'Nota'} — ${formatearFecha(nota.fecha)}`);
+  if (nota.predicador) partes.push(nota.predicador);
+  if (nota.iglesia) partes.push(nota.iglesia);
+  partes.push('');
+
+  if (nota.resumen) {
+    partes.push(nota.resumen.ideaCentral);
+    if (nota.resumen.puntosPrincipales.length > 0) {
+      partes.push('');
+      partes.push('Puntos principales:');
+      nota.resumen.puntosPrincipales.forEach((p) => partes.push(`• ${p}`));
+    }
+    if (nota.resumen.aplicacion) {
+      partes.push('');
+      partes.push(nota.resumen.aplicacion);
+    }
+  } else {
+    partes.push(nota.contenido);
+  }
+
+  if (nota.versiculos.length > 0) {
+    partes.push('');
+    partes.push(`Versículos: ${nota.versiculos.map((v) => v.referencia).join(', ')}`);
+  }
+
+  partes.push('');
+  partes.push('— Daily Bread');
+  return partes.join('\n');
 }
 
 export default function DetalleNota() {
@@ -33,14 +65,13 @@ export default function DetalleNota() {
     setError('');
     setGenerando(true);
     try {
-      const { apiKey } = getConfiguracion();
-      const resumen = await generarResumen(nota!, estilo, apiKey);
+      const resumen = await generarResumenIA(nota!, estilo);
       const actualizada = { ...nota!, resumen, actualizadoEn: new Date().toISOString() };
       saveNota(actualizada);
       sincronizarWidgetSilencioso(actualizada);
       setNota(actualizada);
     } catch (e) {
-      setError(e instanceof GroqError ? e.message : 'Ocurrió un error inesperado al generar el resumen.');
+      setError(e instanceof AIError ? e.message : 'Ocurrió un error inesperado al generar el resumen.');
     } finally {
       setGenerando(false);
     }
@@ -49,6 +80,23 @@ export default function DetalleNota() {
   function handleEliminar() {
     deleteNota(nota!.id);
     navigate('/');
+  }
+
+  function handleCompartir() {
+    const texto = construirTextoCompartir(nota!);
+    if (navigator.share) {
+      navigator.share({ text: texto }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(texto);
+      setError('');
+      alert('Tu navegador no soporta compartir directo. Copiamos el texto al portapapeles.');
+    }
+  }
+
+  function handleToggleDestacada() {
+    const actualizada = { ...nota!, destacada: !nota!.destacada, actualizadoEn: new Date().toISOString() };
+    saveNota(actualizada);
+    setNota(actualizada);
   }
 
   return (
@@ -60,9 +108,27 @@ export default function DetalleNota() {
         <div className="flex gap-2">
           <button
             type="button"
+            onClick={handleToggleDestacada}
+            aria-label={nota.destacada ? 'Quitar destacado' : 'Marcar como destacada'}
+            className={`flex h-10 w-10 items-center justify-center rounded-full bg-surface active:bg-cream-dark/40 ${
+              nota.destacada ? 'text-clay' : 'text-bark-light'
+            }`}
+          >
+            <Star size={18} fill={nota.destacada ? 'currentColor' : 'none'} />
+          </button>
+          <button
+            type="button"
+            onClick={handleCompartir}
+            aria-label="Compartir nota"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-bark-light active:bg-cream-dark/40"
+          >
+            <Share2 size={18} />
+          </button>
+          <button
+            type="button"
             onClick={() => navigate(`/nota/${nota!.id}/editar`)}
             aria-label="Editar nota"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-bark-light active:bg-cream-dark/40"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-bark-light active:bg-cream-dark/40"
           >
             <Pencil size={18} />
           </button>
@@ -70,7 +136,7 @@ export default function DetalleNota() {
             type="button"
             onClick={() => setConfirmandoEliminar(true)}
             aria-label="Eliminar nota"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-red-600 active:bg-red-50"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-red-600 active:bg-red-50"
           >
             <Trash2 size={18} />
           </button>
@@ -93,7 +159,7 @@ export default function DetalleNota() {
         </div>
       )}
 
-      <div className="mt-4 rounded-2xl border border-line bg-white p-4">
+      <div className="mt-4 rounded-2xl border border-line bg-surface p-4">
         <h3 className="mb-2 text-sm font-semibold text-bark-light">Notas originales</h3>
         <p className="whitespace-pre-wrap text-base leading-relaxed text-bark">{nota.contenido}</p>
       </div>
@@ -105,7 +171,7 @@ export default function DetalleNota() {
               type="button"
               onClick={() => setEstilo('devocional')}
               className={`flex-1 rounded-xl border py-2.5 text-sm font-medium ${
-                estilo === 'devocional' ? 'border-sage bg-sage/10 text-sage-dark' : 'border-line bg-white text-bark-light'
+                estilo === 'devocional' ? 'border-sage bg-sage/10 text-sage-dark' : 'border-line bg-surface text-bark-light'
               }`}
             >
               Corto / devocional
@@ -114,7 +180,7 @@ export default function DetalleNota() {
               type="button"
               onClick={() => setEstilo('estudio')}
               className={`flex-1 rounded-xl border py-2.5 text-sm font-medium ${
-                estilo === 'estudio' ? 'border-sage bg-sage/10 text-sage-dark' : 'border-line bg-white text-bark-light'
+                estilo === 'estudio' ? 'border-sage bg-sage/10 text-sage-dark' : 'border-line bg-surface text-bark-light'
               }`}
             >
               Detallado / estudio
@@ -127,7 +193,7 @@ export default function DetalleNota() {
         )}
 
         {generando ? (
-          <div className="flex min-h-[56px] items-center justify-center gap-2 rounded-xl border border-line bg-white py-4 text-sm text-bark-light">
+          <div className="flex min-h-[56px] items-center justify-center gap-2 rounded-xl border border-line bg-surface py-4 text-sm text-bark-light">
             <Loader2 size={18} className="animate-spin" />
             Generando resumen, puede tardar unos segundos...
           </div>
@@ -151,7 +217,7 @@ export default function DetalleNota() {
 
       {confirmandoEliminar && (
         <div className="fixed inset-0 z-40 flex items-end justify-center bg-bark/40 px-4 pb-28">
-          <div className="w-full max-w-[400px] rounded-2xl bg-white p-5">
+          <div className="w-full max-w-[400px] rounded-2xl bg-surface p-5">
             <h3 className="text-base font-semibold text-bark">¿Eliminar esta nota?</h3>
             <p className="mt-1 text-sm text-bark-light">Esta acción no se puede deshacer.</p>
             <div className="mt-4 flex gap-2">

@@ -23,14 +23,17 @@ export interface Nota {
   contenido: string;
   versiculos: Versiculo[];
   resumen: Resumen | null;
+  destacada?: boolean;
   creadoEn: string; // ISO date
   actualizadoEn: string; // ISO date
 }
 
 export interface Configuracion {
   apiKey: string;
+  geminiApiKey?: string;
   githubToken?: string;
   gistId?: string;
+  githubUsername?: string;
 }
 
 export interface FeNotesData {

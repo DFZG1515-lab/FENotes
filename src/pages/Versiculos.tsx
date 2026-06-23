@@ -38,7 +38,7 @@ export default function Versiculos() {
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar versículo o tema..."
-          className="w-full rounded-xl border border-line bg-white py-3 pl-10 pr-4 text-base text-bark focus:border-sage focus:outline-none"
+          className="w-full rounded-xl border border-line bg-surface py-3 pl-10 pr-4 text-base text-bark focus:border-sage focus:outline-none"
         />
       </div>
 
@@ -58,7 +58,7 @@ export default function Versiculos() {
               key={item.id}
               to="/versiculo"
               state={{ referencia: item.referencia, notaId: item.notaId, fecha: formatearFecha(item.fecha) }}
-              className="block rounded-xl border border-line bg-white p-3.5 active:bg-cream-dark/40"
+              className="block rounded-xl border border-line bg-surface p-3.5 active:bg-cream-dark/40"
             >
               <p className="font-semibold text-sage-dark">{item.referencia}</p>
               <p className="mt-0.5 text-xs text-bark-light">

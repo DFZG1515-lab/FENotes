@@ -10,10 +10,29 @@
   --color-sage-light: #7d9a84;
   --color-sage-dark: #41594a;
   --color-line: #e6ddd1;
+  --color-surface: #ffffff;
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
+}
+
+/* Modo oscuro: se sigue la preferencia del sistema. Al sobreescribir las variables,
+   todas las utilidades (bg-cream, text-bark, border-line, bg-surface, etc.) se
+   adaptan solas sin tener que tocar cada componente. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-cream: #1d1a16;
+    --color-cream-dark: #29251f;
+    --color-bark: #f1ebe0;
+    --color-bark-light: #a89e8f;
+    --color-clay: #dba074;
+    --color-sage: #5b7a63;
+    --color-sage-light: #87a890;
+    --color-sage-dark: #a9c7b1;
+    --color-line: #3a342c;
+    --color-surface: #262220;
+  }
 }
 
 * {

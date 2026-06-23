@@ -57,18 +57,18 @@ export default function VersiculoDetalle() {
       <h2 className="mb-4 text-xl font-semibold text-bark">{referencia || 'Versículo'}</h2>
 
       {cargando && (
-        <div className="flex min-h-[120px] items-center justify-center gap-2 rounded-2xl border border-line bg-white text-sm text-bark-light">
+        <div className="flex min-h-[120px] items-center justify-center gap-2 rounded-2xl border border-line bg-surface text-sm text-bark-light">
           <Loader2 size={18} className="animate-spin" />
           Cargando texto bíblico...
         </div>
       )}
 
       {!cargando && error && (
-        <div className="rounded-2xl border border-line bg-white p-4 text-sm text-bark-light">{error}</div>
+        <div className="rounded-2xl border border-line bg-surface p-4 text-sm text-bark-light">{error}</div>
       )}
 
       {!cargando && versos && (
-        <div className="rounded-2xl border border-line bg-white p-5">
+        <div className="rounded-2xl border border-line bg-surface p-5">
           <p className="text-lg leading-relaxed text-bark">
             {versos.map((v) => (
               <span key={v.numero}>
@@ -84,7 +84,7 @@ export default function VersiculoDetalle() {
       {estado?.notaId && (
         <Link
           to={`/nota/${estado.notaId}`}
-          className="mt-4 flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-line bg-white text-sm font-medium text-bark active:bg-cream-dark/40"
+          className="mt-4 flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-line bg-surface text-sm font-medium text-bark active:bg-cream-dark/40"
         >
           <NotebookText size={16} />
           Ver en mi nota{estado.fecha ? ` (${estado.fecha})` : ''}

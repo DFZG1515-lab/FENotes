@@ -125,7 +125,7 @@ export default function NuevaNota() {
             type="date"
             value={nota.fecha}
             onChange={(e) => actualizar('fecha', e.target.value)}
-            className="w-full rounded-xl border border-line bg-white px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
+            className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
           />
         </div>
 
@@ -139,7 +139,7 @@ export default function NuevaNota() {
             value={nota.iglesia}
             onChange={(e) => actualizar('iglesia', e.target.value)}
             placeholder="Ej. Iglesia Vida Nueva"
-            className="w-full rounded-xl border border-line bg-white px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
+            className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
           />
           <datalist id="sugerencias-iglesia">
             <option value={getUltimaIglesia()} />
@@ -156,7 +156,7 @@ export default function NuevaNota() {
             value={nota.predicador}
             onChange={(e) => actualizar('predicador', e.target.value)}
             placeholder="Ej. Pastor Juan Pérez"
-            className="w-full rounded-xl border border-line bg-white px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
+            className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
           />
           <datalist id="sugerencias-predicador">
             {predicadoresUsados.current.map((p) => (
@@ -174,7 +174,7 @@ export default function NuevaNota() {
             value={nota.tema}
             onChange={(e) => actualizar('tema', e.target.value)}
             placeholder="Ej. La fe que vence"
-            className="w-full rounded-xl border border-line bg-white px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
+            className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
           />
         </div>
 
@@ -189,7 +189,7 @@ export default function NuevaNota() {
             onFocus={(e) => scrollIntoViewDelayed(e.target)}
             placeholder="Ve anotando libremente lo que el predicador comparte... si escribes un versículo (ej. Juan 3:16) se agregará solo abajo."
             rows={10}
-            className="w-full resize-none rounded-xl border border-line bg-white px-4 py-3 text-base leading-relaxed text-bark focus:border-sage focus:outline-none"
+            className="w-full resize-none rounded-xl border border-line bg-surface px-4 py-3 text-base leading-relaxed text-bark focus:border-sage focus:outline-none"
           />
         </div>
 
@@ -215,7 +215,7 @@ export default function NuevaNota() {
               }}
               onFocus={(e) => scrollIntoViewDelayed(e.target)}
               placeholder="Ej. Romanos 8:28"
-              className="min-w-0 flex-1 rounded-xl border border-line bg-white px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
+              className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
             />
             <button
               type="button"
@@ -239,7 +239,7 @@ export default function NuevaNota() {
           type="button"
           disabled={!puedeGuardar}
           onClick={guardar}
-          className="w-full rounded-xl bg-sage py-4 text-base font-semibold text-cream shadow-lg shadow-bark/20 disabled:opacity-40"
+          className="w-full rounded-xl bg-sage py-4 text-base font-semibold text-cream shadow-lg shadow-black/20 disabled:opacity-40"
         >
           Guardar nota
         </button>

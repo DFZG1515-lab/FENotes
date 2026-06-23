@@ -84,6 +84,18 @@ export function exportarJSON(): string {
   return JSON.stringify(readData(), null, 2);
 }
 
+export function restaurarNotasDesdeBackup(backup: {
+  notas: Nota[];
+  ultimaIglesia?: string;
+  predicadoresUsados?: string[];
+}): void {
+  const data = readData();
+  data.notas = backup.notas;
+  if (backup.ultimaIglesia) data.ultimaIglesia = backup.ultimaIglesia;
+  if (backup.predicadoresUsados) data.predicadoresUsados = backup.predicadoresUsados;
+  writeData(data);
+}
+
 export function importarJSON(json: string): void {
   const parsed = JSON.parse(json) as FeNotesData;
   if (!Array.isArray(parsed.notas)) {
