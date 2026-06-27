@@ -95,9 +95,12 @@ export async function sincronizarWidget(nota: Nota): Promise<string | null> {
   return rawUrl(owner, gistId, ARCHIVO_WIDGET);
 }
 
-/** Sincroniza sin lanzar errores a la UI; se usa como efecto secundario al guardar notas. */
-export function sincronizarWidgetSilencioso(nota: Nota): void {
-  sincronizarWidget(nota).catch((err) => {
+/** Sincroniza sin lanzar errores a la UI; se usa como efecto secundario al guardar notas.
+ * Siempre muestra en el widget la nota de fecha más reciente, no la que se acaba de guardar. */
+export function sincronizarWidgetSilencioso(): void {
+  const masReciente = getNotas()[0];
+  if (!masReciente) return;
+  sincronizarWidget(masReciente).catch((err) => {
     console.warn('No se pudo sincronizar el widget de Scriptable:', err);
   });
 }

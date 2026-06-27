@@ -30,7 +30,10 @@ function writeData(data: FeNotesData) {
 }
 
 export function getNotas(): Nota[] {
-  return readData().notas.sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
+  return readData().notas.sort((a, b) => {
+    if (a.fecha !== b.fecha) return a.fecha < b.fecha ? 1 : -1;
+    return a.creadoEn < b.creadoEn ? 1 : -1;
+  });
 }
 
 export function getNota(id: string): Nota | undefined {

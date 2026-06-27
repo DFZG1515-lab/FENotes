@@ -104,7 +104,7 @@ export default function NuevaNota() {
   function guardar() {
     const final: Nota = { ...nota, actualizadoEn: new Date().toISOString() };
     saveNota(final);
-    sincronizarWidgetSilencioso(final);
+    sincronizarWidgetSilencioso();
     if (!editando) limpiarBorrador();
     navigate(`/nota/${final.id}`);
   }
@@ -229,7 +229,7 @@ export default function NuevaNota() {
         </div>
       </div>
 
-      <div className="h-20" />
+      <div style={{ height: 'calc(96px + env(safe-area-inset-bottom))' }} />
 
       <div
         className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[430px] border-t border-line bg-cream/95 px-4 pt-3 backdrop-blur"

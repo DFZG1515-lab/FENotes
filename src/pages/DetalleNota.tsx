@@ -68,7 +68,7 @@ export default function DetalleNota() {
       const resumen = await generarResumenIA(nota!, estilo);
       const actualizada = { ...nota!, resumen, actualizadoEn: new Date().toISOString() };
       saveNota(actualizada);
-      sincronizarWidgetSilencioso(actualizada);
+      sincronizarWidgetSilencioso();
       setNota(actualizada);
     } catch (e) {
       setError(e instanceof AIError ? e.message : 'Ocurrió un error inesperado al generar el resumen.');
