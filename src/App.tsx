@@ -8,18 +8,26 @@ import DetalleNota from './pages/DetalleNota';
 import Versiculos from './pages/Versiculos';
 import VersiculoDetalle from './pages/VersiculoDetalle';
 import Configuracion from './pages/Configuracion';
+import Asistente from './pages/Asistente';
 
-const DURACION_SPLASH_MS = 700;
+const DURACION_SPLASH_MS = 900;
+const DURACION_SALIDA_MS = 300;
 
 function App() {
-  const [cargando, setCargando] = useState(true);
+  const [fase, setFase] = useState<'splash' | 'saliendo' | 'app'>('splash');
 
   useEffect(() => {
-    const temporizador = setTimeout(() => setCargando(false), DURACION_SPLASH_MS);
-    return () => clearTimeout(temporizador);
+    const t1 = setTimeout(() => setFase('saliendo'), DURACION_SPLASH_MS);
+    return () => clearTimeout(t1);
   }, []);
 
-  if (cargando) return <Splash />;
+  useEffect(() => {
+    if (fase !== 'saliendo') return;
+    const t2 = setTimeout(() => setFase('app'), DURACION_SALIDA_MS);
+    return () => clearTimeout(t2);
+  }, [fase]);
+
+  if (fase !== 'app') return <Splash saliendo={fase === 'saliendo'} />;
 
   return (
     <HashRouter>
@@ -32,6 +40,7 @@ function App() {
           <Route path="/versiculos" element={<Versiculos />} />
           <Route path="/versiculo" element={<VersiculoDetalle />} />
           <Route path="/configuracion" element={<Configuracion />} />
+          <Route path="/asistente" element={<Asistente />} />
         </Route>
       </Routes>
     </HashRouter>

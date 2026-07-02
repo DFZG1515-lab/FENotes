@@ -36,6 +36,12 @@ export interface Configuracion {
   githubUsername?: string;
 }
 
+export interface MensajeChat {
+  id: string;
+  rol: 'usuario' | 'asistente';
+  contenido: string;
+}
+
 export interface FeNotesData {
   notas: Nota[];
   configuracion: Configuracion;

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { NotebookText, BookMarked, Plus } from 'lucide-react';
+import { NotebookText, BookMarked, Sparkles, Plus } from 'lucide-react';
 
 export default function BottomNav() {
   const navigate = useNavigate();
@@ -26,17 +26,6 @@ export default function BottomNav() {
           </NavLink>
         </li>
 
-        <li className="flex flex-1 justify-center pb-2">
-          <button
-            type="button"
-            onClick={() => navigate('/nueva')}
-            aria-label="Nueva nota"
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-clay text-cream shadow-md shadow-black/20 transition-transform active:scale-90"
-          >
-            <Plus size={24} strokeWidth={2.4} />
-          </button>
-        </li>
-
         <li className="flex-1">
           <NavLink
             to="/versiculos"
@@ -53,6 +42,35 @@ export default function BottomNav() {
               </>
             )}
           </NavLink>
+        </li>
+
+        <li className="flex-1">
+          <NavLink
+            to="/asistente"
+            className={({ isActive }) =>
+              `flex min-h-[60px] flex-col items-center justify-center gap-1 text-xs ${
+                isActive ? 'text-sage-dark' : 'text-bark-light'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Sparkles size={22} strokeWidth={isActive ? 2.4 : 2} />
+                <span className={isActive ? 'font-medium' : ''}>Asistente</span>
+              </>
+            )}
+          </NavLink>
+        </li>
+
+        <li className="flex flex-1 justify-center pb-2">
+          <button
+            type="button"
+            onClick={() => navigate('/nueva')}
+            aria-label="Nueva nota"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-clay text-cream shadow-md shadow-black/20 transition-transform active:scale-90"
+          >
+            <Plus size={24} strokeWidth={2.4} />
+          </button>
         </li>
       </ul>
     </nav>
