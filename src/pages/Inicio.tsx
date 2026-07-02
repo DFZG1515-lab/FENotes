@@ -3,6 +3,7 @@ import { Search, NotebookText, Star } from 'lucide-react';
 import { deleteNota, getNotas, getTotalNotas } from '../lib/storage';
 import NotaCard from '../components/NotaCard';
 import SwipeableRow from '../components/SwipeableRow';
+import Logo from '../components/Logo';
 
 export default function Inicio() {
   const [recargarTick, setRecargarTick] = useState(0);
@@ -93,13 +94,27 @@ export default function Inicio() {
       )}
 
       {filtradas.length === 0 ? (
-        <div className="mt-16 flex flex-col items-center gap-3 text-center text-bark-light">
-          <NotebookText size={40} strokeWidth={1.5} />
-          <p className="max-w-[260px] text-sm">
-            {notas.length === 0
-              ? 'Aún no tienes notas. Toca el botón + para crear la primera.'
-              : 'No se encontraron notas con esa búsqueda.'}
-          </p>
+        <div className="mt-20 flex flex-col items-center gap-4 text-center">
+          {notas.length === 0 ? (
+            <>
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-sage/10 text-sage">
+                <Logo size={28} />
+              </div>
+              <div>
+                <p className="text-base font-semibold text-bark">Tu primera nota te espera</p>
+                <p className="mt-1 max-w-[240px] text-sm text-bark-light">
+                  Toca el botón <span className="font-medium text-clay">+</span> para empezar a guardar lo que Dios te habla en cada servicio.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <NotebookText size={36} strokeWidth={1.5} className="text-bark-light/50" />
+              <p className="max-w-[240px] text-sm text-bark-light">
+                No se encontraron notas con esa búsqueda.
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <div className="space-y-3">

@@ -8,10 +8,14 @@ function formatearFecha(fecha: string): string {
 }
 
 export default function NotaCard({ nota }: { nota: Nota }) {
+  const preview = nota.resumen?.ideaCentral || nota.contenido;
+
   return (
     <Link
       to={`/nota/${nota.id}`}
-      className="block rounded-2xl border border-line bg-surface p-4 active:bg-cream-dark/40"
+      className={`block rounded-2xl border bg-surface p-4 active:bg-cream-dark/40 ${
+        nota.destacada ? 'border-clay/40' : 'border-line'
+      }`}
     >
       <div className="flex items-start justify-between gap-2">
         <span className="text-xs font-medium uppercase tracking-wide text-bark-light">
@@ -27,23 +31,29 @@ export default function NotaCard({ nota }: { nota: Nota }) {
           )}
         </div>
       </div>
+
       <h3 className="mt-1.5 text-base font-semibold text-bark">
         {nota.tema || nota.versiculos[0]?.referencia || 'Nota sin título'}
       </h3>
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-bark-light">
+
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-bark-light">
         {nota.predicador && (
           <span className="flex items-center gap-1">
-            <User size={14} />
+            <User size={13} />
             {nota.predicador}
           </span>
         )}
         {nota.iglesia && (
           <span className="flex items-center gap-1">
-            <MapPin size={14} />
+            <MapPin size={13} />
             {nota.iglesia}
           </span>
         )}
       </div>
+
+      {preview && (
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-bark-light">{preview}</p>
+      )}
     </Link>
   );
 }
