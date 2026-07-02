@@ -26,6 +26,7 @@ function construirPayloadWidget(nota: Nota) {
     predicador: nota.predicador,
     tema: nota.tema,
     mensaje: construirMensaje(nota),
+    puntosPrincipales: nota.resumen?.puntosPrincipales.slice(0, 3) ?? [],
     tieneResumen: Boolean(nota.resumen),
     versiculos: nota.versiculos.map((v) => v.referencia).slice(0, 5),
     actualizadoEn: nota.actualizadoEn,
