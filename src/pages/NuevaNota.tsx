@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Sparkles, Send, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import VersiculoChip from '../components/VersiculoChip';
+import { AsistenteError, enviarMensajeEnNota } from '../lib/asistente';
+import type { MensajeChat } from '../types';
 import {
   getBorrador,
   getNota,
@@ -57,6 +59,41 @@ export default function NuevaNota() {
   const [nuevoVersiculo, setNuevoVersiculo] = useState('');
   const predicadoresUsados = useRef(getPredicadoresUsados());
   const ignorados = useRef(new Set<string>());
+
+  // Mini-chat IA dentro de la nota
+  const [chatAbierto, setChatAbierto] = useState(false);
+  const [chatMensajes, setChatMensajes] = useState<MensajeChat[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatCargando, setChatCargando] = useState(false);
+  const [chatError, setChatError] = useState('');
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatAbierto) chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMensajes, chatCargando, chatAbierto]);
+
+  async function handleChatEnviar() {
+    const pregunta = chatInput.trim();
+    if (!pregunta || chatCargando) return;
+    const msgUsuario: MensajeChat = { id: generarId(), rol: 'usuario', contenido: pregunta };
+    setChatMensajes((prev) => [...prev, msgUsuario]);
+    setChatInput('');
+    setChatError('');
+    setChatCargando(true);
+    try {
+      const respuesta = await enviarMensajeEnNota(pregunta, chatMensajes, {
+        predicador: nota.predicador,
+        tema: nota.tema,
+        contenido: nota.contenido,
+        versiculos: nota.versiculos.map((v) => v.referencia),
+      });
+      setChatMensajes((prev) => [...prev, { id: generarId(), rol: 'asistente', contenido: respuesta }]);
+    } catch (e) {
+      setChatError(e instanceof AsistenteError ? e.message : 'Ocurrió un error. Intenta de nuevo.');
+    } finally {
+      setChatCargando(false);
+    }
+  }
 
   useEffect(() => {
     if (!editando) {
@@ -191,6 +228,73 @@ export default function NuevaNota() {
             rows={10}
             className="w-full resize-none rounded-xl border border-line bg-surface px-4 py-3 text-base leading-relaxed text-bark focus:border-sage focus:outline-none"
           />
+        </div>
+
+        {/* Mini-chat IA */}
+        <div className="rounded-2xl border border-line bg-surface overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setChatAbierto((v) => !v)}
+            className="flex w-full items-center justify-between px-4 py-3 text-left active:bg-cream-dark/30"
+          >
+            <span className="flex items-center gap-2 text-sm font-medium text-sage-dark">
+              <Sparkles size={15} />
+              Consultar con IA
+            </span>
+            {chatAbierto ? <ChevronUp size={16} className="text-bark-light" /> : <ChevronDown size={16} className="text-bark-light" />}
+          </button>
+
+          {chatAbierto && (
+            <div className="border-t border-line">
+              {chatMensajes.length === 0 && (
+                <p className="px-4 py-3 text-xs text-bark-light">
+                  Pregúntame sobre un versículo, el tema del sermón o cualquier cosa que no entiendas mientras anotas.
+                </p>
+              )}
+
+              {chatMensajes.length > 0 && (
+                <div className="max-h-56 overflow-y-auto space-y-3 px-4 py-3">
+                  {chatMensajes.map((m) => (
+                    <div key={m.id} className={`flex ${m.rol === 'usuario' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed ${
+                        m.rol === 'usuario' ? 'bg-sage text-cream' : 'bg-cream border border-line text-bark'
+                      }`}>
+                        {m.contenido}
+                      </div>
+                    </div>
+                  ))}
+                  {chatCargando && (
+                    <div className="flex items-center gap-2 text-xs text-bark-light">
+                      <Loader2 size={13} className="animate-spin" />
+                      Pensando...
+                    </div>
+                  )}
+                  {chatError && (
+                    <p className="text-xs text-red-600">{chatError}</p>
+                  )}
+                  <div ref={chatBottomRef} />
+                </div>
+              )}
+
+              <div className="flex gap-2 border-t border-line px-3 py-2">
+                <input
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleChatEnviar(); } }}
+                  placeholder="Ej. ¿Qué significa Juan 3:16?"
+                  className="min-w-0 flex-1 rounded-lg border border-line bg-cream px-3 py-2 text-sm text-bark focus:border-sage focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleChatEnviar}
+                  disabled={!chatInput.trim() || chatCargando}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sage text-cream disabled:opacity-40 active:bg-sage-dark"
+                >
+                  <Send size={15} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div>
