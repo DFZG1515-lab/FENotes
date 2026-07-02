@@ -139,23 +139,8 @@ function crearWidgetMediano(nota) {
     return w;
   }
 
-  const fila = w.addStack();
-  fila.layoutHorizontally();
-
-  // Franja de acento vertical (lomo de libro).
-  const franja = fila.addStack();
-  franja.backgroundColor = ACENTO;
-  franja.cornerRadius = 2;
-  franja.size = new Size(3, 116);
-
-  fila.addSpacer(12);
-
-  // Contenido principal.
-  const contenido = fila.addStack();
-  contenido.layoutVertically();
-
-  // Fecha + tema en la misma fila.
-  const cabecera = contenido.addStack();
+  // ── Cabecera: fecha pill + tema ──────────────────────────────────────────
+  const cabecera = w.addStack();
   cabecera.layoutHorizontally();
   cabecera.centerAlignContent();
 
@@ -168,28 +153,38 @@ function crearWidgetMediano(nota) {
   txtFecha.textColor = TEXTO_SOBRE_ACENTO;
 
   if (nota.tema) {
-    cabecera.addSpacer(7);
+    cabecera.addSpacer(8);
     const txtTema = cabecera.addText(nota.tema);
     txtTema.font = Font.semiboldSystemFont(11);
     txtTema.textColor = TEXTO;
-    txtTema.textOpacity = 0.75;
+    txtTema.textOpacity = 0.7;
     txtTema.lineLimit = 1;
-    txtTema.minimumScaleFactor = 0.8;
+    txtTema.minimumScaleFactor = 0.75;
   }
 
-  contenido.addSpacer(8);
+  w.addSpacer(10);
 
-  // Idea central como cita grande — corazón del widget.
-  const cita = contenido.addText(nota.mensaje || "Genera un resumen con IA para ver la idea central aquí.");
-  cita.font = Font.regularSystemFont(13);
+  // ── Idea central ─────────────────────────────────────────────────────────
+  const cita = w.addText(nota.mensaje || "Genera un resumen con IA para ver la idea central aquí.");
+  cita.font = Font.regularSystemFont(13.5);
   cita.textColor = TEXTO;
-  cita.lineLimit = 4;
-  cita.minimumScaleFactor = 0.88;
+  cita.lineLimit = 5;
+  cita.minimumScaleFactor = 0.85;
 
-  contenido.addSpacer();
+  w.addSpacer(8);
 
-  // Pie: predicador · iglesia + marca de agua.
-  const pie = contenido.addStack();
+  // ── Versículos (si existen) ───────────────────────────────────────────────
+  if (nota.versiculos && nota.versiculos.length > 0) {
+    const txtVers = w.addText(nota.versiculos.slice(0, 4).join("  ·  "));
+    txtVers.font = Font.semiboldSystemFont(10);
+    txtVers.textColor = ACENTO;
+    txtVers.lineLimit = 1;
+    txtVers.minimumScaleFactor = 0.75;
+    w.addSpacer(6);
+  }
+
+  // ── Pie: predicador · iglesia + marca ────────────────────────────────────
+  const pie = w.addStack();
   pie.layoutHorizontally();
   pie.centerAlignContent();
 
@@ -198,7 +193,7 @@ function crearWidgetMediano(nota) {
     const txtPie = pie.addText(infoPie);
     txtPie.font = Font.italicSystemFont(10);
     txtPie.textColor = TEXTO;
-    txtPie.textOpacity = 0.5;
+    txtPie.textOpacity = 0.45;
     txtPie.lineLimit = 1;
     txtPie.minimumScaleFactor = 0.8;
   }
