@@ -125,7 +125,7 @@ function crearWidgetPequeno(nota) {
   return w;
 }
 
-// ─── Widget MEDIANO ───────────────────────────────────────────────────────────
+// ─── Widget MEDIANO — Quote card ─────────────────────────────────────────────
 
 function crearWidgetMediano(nota) {
   const w = new ListWidget();
@@ -141,103 +141,70 @@ function crearWidgetMediano(nota) {
 
   const fila = w.addStack();
   fila.layoutHorizontally();
-  fila.centerAlignContent();
 
-  // ── Columna izquierda ──
-  const izquierda = w.addStack ? fila.addStack() : fila.addStack();
-  izquierda.layoutVertically();
-  izquierda.size = new Size(148, 0);
+  // Franja de acento vertical (lomo de libro).
+  const franja = fila.addStack();
+  franja.backgroundColor = ACENTO;
+  franja.cornerRadius = 2;
+  franja.size = new Size(3, 116);
 
-  // Fecha.
-  const pill = izquierda.addStack();
-  pill.layoutHorizontally();
+  fila.addSpacer(12);
+
+  // Contenido principal.
+  const contenido = fila.addStack();
+  contenido.layoutVertically();
+
+  // Fecha + tema en la misma fila.
+  const cabecera = contenido.addStack();
+  cabecera.layoutHorizontally();
+  cabecera.centerAlignContent();
+
+  const pill = cabecera.addStack();
   pill.backgroundColor = ACENTO;
-  pill.cornerRadius = 6;
-  pill.setPadding(3, 8, 3, 8);
+  pill.cornerRadius = 5;
+  pill.setPadding(2, 7, 2, 7);
   const txtFecha = pill.addText(formatearFecha(nota.fecha).toUpperCase());
   txtFecha.font = Font.semiboldSystemFont(9);
   txtFecha.textColor = TEXTO_SOBRE_ACENTO;
 
-  izquierda.addSpacer(8);
-
-  // Tema.
-  const titulo = izquierda.addText(nota.tema || "Nota del sermón");
-  titulo.font = Font.boldSystemFont(14);
-  titulo.textColor = TEXTO;
-  titulo.minimumScaleFactor = 0.75;
-  titulo.lineLimit = 3;
-
-  izquierda.addSpacer();
-
-  // Predicador e iglesia al pie.
-  if (nota.predicador) {
-    const txtPredicador = izquierda.addText(nota.predicador);
-    txtPredicador.font = Font.italicSystemFont(10);
-    txtPredicador.textColor = TEXTO;
-    txtPredicador.textOpacity = 0.6;
-    txtPredicador.lineLimit = 1;
-  }
-  if (nota.iglesia) {
-    const txtIglesia = izquierda.addText(nota.iglesia);
-    txtIglesia.font = Font.regularSystemFont(9);
-    txtIglesia.textColor = TEXTO;
-    txtIglesia.textOpacity = 0.4;
-    txtIglesia.lineLimit = 1;
+  if (nota.tema) {
+    cabecera.addSpacer(7);
+    const txtTema = cabecera.addText(nota.tema);
+    txtTema.font = Font.semiboldSystemFont(11);
+    txtTema.textColor = TEXTO;
+    txtTema.textOpacity = 0.75;
+    txtTema.lineLimit = 1;
+    txtTema.minimumScaleFactor = 0.8;
   }
 
-  // ── Separador vertical ──
-  fila.addSpacer(12);
+  contenido.addSpacer(8);
 
-  const sep = fila.addStack();
-  sep.backgroundColor = SEPARADOR;
-  sep.size = new Size(1, 110);
+  // Idea central como cita grande — corazón del widget.
+  const cita = contenido.addText(nota.mensaje || "Genera un resumen con IA para ver la idea central aquí.");
+  cita.font = Font.regularSystemFont(13);
+  cita.textColor = TEXTO;
+  cita.lineLimit = 4;
+  cita.minimumScaleFactor = 0.88;
 
-  fila.addSpacer(12);
+  contenido.addSpacer();
 
-  // ── Columna derecha — puntos del sermón ──
-  const derecha = fila.addStack();
-  derecha.layoutVertically();
-
-  const puntos = (nota.puntosPrincipales && nota.puntosPrincipales.length > 0)
-    ? nota.puntosPrincipales
-    : (nota.mensaje ? [nota.mensaje] : []);
-
-  if (puntos.length === 0) {
-    const vacío = derecha.addText("Genera un resumen con IA en la app para ver los puntos del sermón aquí.");
-    vacío.font = Font.regularSystemFont(11);
-    vacío.textColor = TEXTO;
-    vacío.textOpacity = 0.5;
-    vacío.lineLimit = 5;
-  } else {
-    for (let i = 0; i < Math.min(puntos.length, 3); i++) {
-      if (i > 0) derecha.addSpacer(6);
-
-      const fila_punto = derecha.addStack();
-      fila_punto.layoutHorizontally();
-
-      // Número del punto.
-      const num = fila_punto.addText(`${i + 1}`);
-      num.font = Font.semiboldSystemFont(10);
-      num.textColor = ACENTO;
-      num.minimumScaleFactor = 1;
-
-      fila_punto.addSpacer(5);
-
-      const txt = fila_punto.addText(puntos[i]);
-      txt.font = Font.regularSystemFont(11);
-      txt.textColor = TEXTO;
-      txt.textOpacity = 0.9;
-      txt.lineLimit = 3;
-      txt.minimumScaleFactor = 0.85;
-    }
-  }
-
-  derecha.addSpacer();
-
-  // Marca de agua abajo a la derecha.
-  const pie = derecha.addStack();
+  // Pie: predicador · iglesia + marca de agua.
+  const pie = contenido.addStack();
   pie.layoutHorizontally();
+  pie.centerAlignContent();
+
+  const infoPie = [nota.predicador, nota.iglesia].filter(Boolean).join("  ·  ");
+  if (infoPie) {
+    const txtPie = pie.addText(infoPie);
+    txtPie.font = Font.italicSystemFont(10);
+    txtPie.textColor = TEXTO;
+    txtPie.textOpacity = 0.5;
+    txtPie.lineLimit = 1;
+    txtPie.minimumScaleFactor = 0.8;
+  }
+
   pie.addSpacer();
+
   const marca = pie.addImage(SFSymbol.named("cross.case.fill").image);
   marca.imageSize = new Size(11, 11);
   marca.tintColor = TEXTO;
