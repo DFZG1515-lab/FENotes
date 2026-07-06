@@ -1,38 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #faf7f2;
-  --color-cream-dark: #f0ead0;
-  --color-bark: #3f3a34;
-  --color-bark-light: #6b6358;
+  --color-cream: #100e0a;
+  --color-cream-dark: #1a1510;
+  --color-bark: #f0e8d8;
+  --color-bark-light: #9a8070;
   --color-clay: #c98a5e;
-  --color-sage: #5b7a63;
-  --color-sage-light: #7d9a84;
-  --color-sage-dark: #41594a;
-  --color-line: #e6ddd1;
-  --color-surface: #ffffff;
+  --color-sage: #6b9a74;
+  --color-sage-light: #8ab594;
+  --color-sage-dark: #a9c7b1;
+  --color-line: #2e261a;
+  --color-surface: #1a1510;
 }
 
 :root {
-  color-scheme: light dark;
-}
-
-/* Modo oscuro: se sigue la preferencia del sistema. Al sobreescribir las variables,
-   todas las utilidades (bg-cream, text-bark, border-line, bg-surface, etc.) se
-   adaptan solas sin tener que tocar cada componente. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-cream: #1d1a16;
-    --color-cream-dark: #29251f;
-    --color-bark: #f1ebe0;
-    --color-bark-light: #a89e8f;
-    --color-clay: #dba074;
-    --color-sage: #5b7a63;
-    --color-sage-light: #87a890;
-    --color-sage-dark: #a9c7b1;
-    --color-line: #3a342c;
-    --color-surface: #262220;
-  }
+  color-scheme: dark;
 }
 
 * {

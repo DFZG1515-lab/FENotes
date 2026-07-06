@@ -94,6 +94,16 @@ export default function Devocional() {
   }
 
   useEffect(() => {
+    const color = '#100e0a';
+    document.documentElement.style.backgroundColor = color;
+    document.body.style.backgroundColor = color;
+    return () => {
+      document.documentElement.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+    };
+  }, []);
+
+  useEffect(() => {
     cargarVerso();
   }, []);
 
