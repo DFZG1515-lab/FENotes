@@ -33,7 +33,7 @@ export async function obtenerTextoCapitulo(ref: ReferenciaParseada): Promise<Ver
 
   const versos = data
     .filter((v) => v.verse >= inicio && v.verse <= fin)
-    .map((v) => ({ numero: v.verse, texto: v.text.trim() }));
+    .map((v) => ({ numero: v.verse, texto: v.text.replace(/<[^>]*>/g, '').trim() }));
 
   if (versos.length === 0) {
     throw new BibleError('No se encontraron esos versículos en ese capítulo.');
