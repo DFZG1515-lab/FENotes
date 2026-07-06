@@ -5,7 +5,7 @@ interface Props {
   saliendo?: boolean;
 }
 
-const SAGE = '#5b7a63';
+const SAGE = '#100e0a';
 
 export default function Splash({ saliendo = false }: Props) {
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function Splash({ saliendo = false }: Props) {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-sage">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center" style={{ backgroundColor: '#100e0a' }}>
       <div
         className="flex flex-col items-center gap-3"
         style={{
