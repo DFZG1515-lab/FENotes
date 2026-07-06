@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Sparkles, Send, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Sparkles, Send, Loader2, ChevronDown, ChevronUp, Calendar, MapPin, User, Tag } from 'lucide-react';
 import VersiculoChip from '../components/VersiculoChip';
 import { AsistenteError, enviarMensajeEnNota } from '../lib/asistente';
 import type { MensajeChat } from '../types';
@@ -60,7 +60,7 @@ export default function NuevaNota() {
   const predicadoresUsados = useRef(getPredicadoresUsados());
   const ignorados = useRef(new Set<string>());
 
-  // Mini-chat IA dentro de la nota
+  // Mini-chat IA
   const [chatAbierto, setChatAbierto] = useState(false);
   const [chatMensajes, setChatMensajes] = useState<MensajeChat[]>([]);
   const [chatInput, setChatInput] = useState('');
@@ -96,16 +96,12 @@ export default function NuevaNota() {
   }
 
   useEffect(() => {
-    if (!editando) {
-      guardarBorrador(nota);
-    }
+    if (!editando) guardarBorrador(nota);
   }, [nota, editando]);
 
-  // Detecta automáticamente referencias bíblicas mientras se escribe en las notas.
   useEffect(() => {
     const detectados = detectarVersiculos(nota.contenido);
     if (detectados.length === 0) return;
-
     setNota((prev) => {
       const existentes = new Set(prev.versiculos.map((v) => normalizarReferencia(v.referencia)));
       const nuevos = detectados.filter((ref) => {
@@ -125,8 +121,7 @@ export default function NuevaNota() {
   function agregarVersiculo() {
     const ref = nuevoVersiculo.trim();
     if (!ref) return;
-    const v: Versiculo = { id: generarId(), referencia: ref };
-    setNota((prev) => ({ ...prev, versiculos: [...prev.versiculos, v] }));
+    setNota((prev) => ({ ...prev, versiculos: [...prev.versiculos, { id: generarId(), referencia: ref }] }));
     setNuevoVersiculo('');
   }
 
@@ -149,72 +144,78 @@ export default function NuevaNota() {
   const puedeGuardar = nota.contenido.trim().length > 0;
 
   return (
-    <div className="px-4 pt-4">
+    <div className="overflow-x-hidden px-4 pt-4">
       <h2 className="mb-4 text-xl font-semibold text-bark">{editando ? 'Editar nota' : 'Nueva nota'}</h2>
 
       <div className="space-y-4">
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-bark-light" htmlFor="fecha">
-            Fecha
+
+        {/* ── Tarjeta de metadata compacta ─────────────────────────────── */}
+        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+
+          {/* Fecha */}
+          <label className="flex items-center gap-3 px-4 py-3">
+            <Calendar size={15} className="shrink-0 text-bark-light" />
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <input
+                type="date"
+                value={nota.fecha}
+                onChange={(e) => actualizar('fecha', e.target.value)}
+                className="w-full bg-transparent text-sm text-bark focus:outline-none"
+              />
+            </div>
           </label>
-          <input
-            id="fecha"
-            type="date"
-            value={nota.fecha}
-            onChange={(e) => actualizar('fecha', e.target.value)}
-            className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
-          />
+
+          <div className="mx-4 h-px bg-line" />
+
+          {/* Iglesia */}
+          <label className="flex items-center gap-3 px-4 py-3">
+            <MapPin size={15} className="shrink-0 text-bark-light" />
+            <input
+              list="sugerencias-iglesia"
+              value={nota.iglesia}
+              onChange={(e) => actualizar('iglesia', e.target.value)}
+              placeholder="Iglesia / lugar"
+              className="min-w-0 flex-1 bg-transparent text-sm text-bark placeholder:text-bark-light/60 focus:outline-none"
+            />
+            <datalist id="sugerencias-iglesia">
+              <option value={getUltimaIglesia()} />
+            </datalist>
+          </label>
+
+          <div className="mx-4 h-px bg-line" />
+
+          {/* Predicador */}
+          <label className="flex items-center gap-3 px-4 py-3">
+            <User size={15} className="shrink-0 text-bark-light" />
+            <input
+              list="sugerencias-predicador"
+              value={nota.predicador}
+              onChange={(e) => actualizar('predicador', e.target.value)}
+              placeholder="Predicador"
+              className="min-w-0 flex-1 bg-transparent text-sm text-bark placeholder:text-bark-light/60 focus:outline-none"
+            />
+            <datalist id="sugerencias-predicador">
+              {predicadoresUsados.current.map((p) => (
+                <option key={p} value={p} />
+              ))}
+            </datalist>
+          </label>
+
+          <div className="mx-4 h-px bg-line" />
+
+          {/* Tema */}
+          <label className="flex items-center gap-3 px-4 py-3">
+            <Tag size={15} className="shrink-0 text-bark-light" />
+            <input
+              value={nota.tema}
+              onChange={(e) => actualizar('tema', e.target.value)}
+              placeholder="Tema (opcional)"
+              className="min-w-0 flex-1 bg-transparent text-sm text-bark placeholder:text-bark-light/60 focus:outline-none"
+            />
+          </label>
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-bark-light" htmlFor="iglesia">
-            Iglesia / lugar
-          </label>
-          <input
-            id="iglesia"
-            list="sugerencias-iglesia"
-            value={nota.iglesia}
-            onChange={(e) => actualizar('iglesia', e.target.value)}
-            placeholder="Ej. Iglesia Vida Nueva"
-            className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
-          />
-          <datalist id="sugerencias-iglesia">
-            <option value={getUltimaIglesia()} />
-          </datalist>
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-bark-light" htmlFor="predicador">
-            Predicador
-          </label>
-          <input
-            id="predicador"
-            list="sugerencias-predicador"
-            value={nota.predicador}
-            onChange={(e) => actualizar('predicador', e.target.value)}
-            placeholder="Ej. Pastor Juan Pérez"
-            className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
-          />
-          <datalist id="sugerencias-predicador">
-            {predicadoresUsados.current.map((p) => (
-              <option key={p} value={p} />
-            ))}
-          </datalist>
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-bark-light" htmlFor="tema">
-            Tema o título del mensaje <span className="text-bark-light/60">(opcional)</span>
-          </label>
-          <input
-            id="tema"
-            value={nota.tema}
-            onChange={(e) => actualizar('tema', e.target.value)}
-            placeholder="Ej. La fe que vence"
-            className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"
-          />
-        </div>
-
+        {/* ── Área de notas ─────────────────────────────────────────────── */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-bark-light" htmlFor="contenido">
             Notas
@@ -225,13 +226,13 @@ export default function NuevaNota() {
             onChange={(e) => actualizar('contenido', e.target.value)}
             onFocus={(e) => scrollIntoViewDelayed(e.target)}
             placeholder="Ve anotando libremente lo que el predicador comparte... si escribes un versículo (ej. Juan 3:16) se agregará solo abajo."
-            rows={10}
+            rows={12}
             className="w-full resize-none rounded-xl border border-line bg-surface px-4 py-3 text-base leading-relaxed text-bark focus:border-sage focus:outline-none"
           />
         </div>
 
-        {/* Mini-chat IA */}
-        <div className="rounded-2xl border border-line bg-surface overflow-hidden">
+        {/* ── Consultar con IA ──────────────────────────────────────────── */}
+        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
           <button
             type="button"
             onClick={() => setChatAbierto((v) => !v)}
@@ -241,7 +242,9 @@ export default function NuevaNota() {
               <Sparkles size={15} />
               Consultar con IA
             </span>
-            {chatAbierto ? <ChevronUp size={16} className="text-bark-light" /> : <ChevronDown size={16} className="text-bark-light" />}
+            {chatAbierto
+              ? <ChevronUp size={16} className="text-bark-light" />
+              : <ChevronDown size={16} className="text-bark-light" />}
           </button>
 
           {chatAbierto && (
@@ -251,13 +254,12 @@ export default function NuevaNota() {
                   Pregúntame sobre un versículo, el tema del sermón o cualquier cosa que no entiendas mientras anotas.
                 </p>
               )}
-
               {chatMensajes.length > 0 && (
-                <div className="max-h-56 overflow-y-auto space-y-3 px-4 py-3">
+                <div className="max-h-56 space-y-3 overflow-y-auto px-4 py-3">
                   {chatMensajes.map((m) => (
                     <div key={m.id} className={`flex ${m.rol === 'usuario' ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed ${
-                        m.rol === 'usuario' ? 'bg-sage text-cream' : 'bg-cream border border-line text-bark'
+                        m.rol === 'usuario' ? 'bg-sage text-cream' : 'border border-line bg-cream text-bark'
                       }`}>
                         {m.contenido}
                       </div>
@@ -269,13 +271,10 @@ export default function NuevaNota() {
                       Pensando...
                     </div>
                   )}
-                  {chatError && (
-                    <p className="text-xs text-red-600">{chatError}</p>
-                  )}
+                  {chatError && <p className="text-xs text-red-600">{chatError}</p>}
                   <div ref={chatBottomRef} />
                 </div>
               )}
-
               <div className="flex gap-2 border-t border-line px-3 py-2">
                 <input
                   value={chatInput}
@@ -297,26 +296,24 @@ export default function NuevaNota() {
           )}
         </div>
 
+        {/* ── Versículos ────────────────────────────────────────────────── */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-bark-light">Versículos mencionados</label>
           <p className="mb-2 text-xs text-bark-light">
-            Se detectan automáticamente al escribirlos en tus notas. También puedes agregar uno manualmente:
+            Se detectan automáticamente. También puedes agregar uno manualmente:
           </p>
-          <div className="mb-2 flex flex-wrap gap-2">
-            {nota.versiculos.map((v) => (
-              <VersiculoChip key={v.id} referencia={v.referencia} onRemove={() => quitarVersiculo(v.id)} />
-            ))}
-          </div>
+          {nota.versiculos.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {nota.versiculos.map((v) => (
+                <VersiculoChip key={v.id} referencia={v.referencia} onRemove={() => quitarVersiculo(v.id)} />
+              ))}
+            </div>
+          )}
           <div className="flex gap-2">
             <input
               value={nuevoVersiculo}
               onChange={(e) => setNuevoVersiculo(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  agregarVersiculo();
-                }
-              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); agregarVersiculo(); } }}
               onFocus={(e) => scrollIntoViewDelayed(e.target)}
               placeholder="Ej. Romanos 8:28"
               className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-4 py-3 text-base text-bark focus:border-sage focus:outline-none"

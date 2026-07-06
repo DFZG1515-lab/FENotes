@@ -9,7 +9,7 @@ export default function Layout() {
   return (
     <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-cream">
       <Header />
-      <main className={`flex-1 overflow-y-auto ${esFormularioNota ? 'pb-4' : 'pb-28'}`}>
+      <main className={`flex-1 overflow-x-hidden overflow-y-auto ${esFormularioNota ? 'pb-4' : 'pb-28'}`}>
         <div key={location.pathname} style={{ animation: 'page-in 0.22s ease-out both' }}>
           <Outlet />
         </div>
