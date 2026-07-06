@@ -79,7 +79,7 @@ export default function DetalleNota() {
 
   function handleEliminar() {
     deleteNota(nota!.id);
-    navigate('/');
+    navigate('/notas');
   }
 
   function handleCompartir() {

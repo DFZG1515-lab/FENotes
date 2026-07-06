@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import Splash from './components/Splash';
+import Devocional from './pages/Devocional';
 import Inicio from './pages/Inicio';
 import NuevaNota from './pages/NuevaNota';
 import DetalleNota from './pages/DetalleNota';
@@ -32,8 +33,9 @@ function App() {
   return (
     <HashRouter>
       <Routes>
+        <Route path="/" element={<Devocional />} />
         <Route element={<Layout />}>
-          <Route path="/" element={<Inicio />} />
+          <Route path="/notas" element={<Inicio />} />
           <Route path="/nueva" element={<NuevaNota />} />
           <Route path="/nota/:id" element={<DetalleNota />} />
           <Route path="/nota/:id/editar" element={<NuevaNota />} />

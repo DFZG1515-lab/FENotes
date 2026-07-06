@@ -9,8 +9,7 @@ export default function BottomNav() {
       <ul className="flex items-center">
         <li className="flex-1">
           <NavLink
-            to="/"
-            end
+            to="/notas"
             className={({ isActive }) =>
               `flex min-h-[60px] flex-col items-center justify-center gap-1 text-xs ${
                 isActive ? 'text-sage-dark' : 'text-bark-light'
