@@ -59,6 +59,7 @@ export default function NuevaNota() {
   const [nuevoVersiculo, setNuevoVersiculo] = useState('');
   const predicadoresUsados = useRef(getPredicadoresUsados());
   const ignorados = useRef(new Set<string>());
+  const autoDetectados = useRef(new Set<string>());
 
   // Mini-chat IA
   const [chatAbierto, setChatAbierto] = useState(false);
@@ -101,16 +102,29 @@ export default function NuevaNota() {
 
   useEffect(() => {
     const detectados = detectarVersiculos(nota.contenido);
-    if (detectados.length === 0) return;
+    const clavesDetectadas = new Set(detectados.map((ref) => normalizarReferencia(ref)));
     setNota((prev) => {
-      const existentes = new Set(prev.versiculos.map((v) => normalizarReferencia(v.referencia)));
+      // Quita los auto-detectados que ya no coinciden con el texto actual (p.ej. referencias parciales
+      // mientras el usuario aún está escribiendo). Los agregados manualmente nunca se tocan aquí.
+      const versiculos = prev.versiculos.filter((v) => {
+        const clave = normalizarReferencia(v.referencia);
+        if (autoDetectados.current.has(clave) && !clavesDetectadas.has(clave)) {
+          autoDetectados.current.delete(clave);
+          return false;
+        }
+        return true;
+      });
+      const existentes = new Set(versiculos.map((v) => normalizarReferencia(v.referencia)));
       const nuevos = detectados.filter((ref) => {
         const clave = normalizarReferencia(ref);
         return !existentes.has(clave) && !ignorados.current.has(clave);
       });
-      if (nuevos.length === 0) return prev;
-      const versiculosNuevos: Versiculo[] = nuevos.map((referencia) => ({ id: generarId(), referencia }));
-      return { ...prev, versiculos: [...prev.versiculos, ...versiculosNuevos] };
+      if (nuevos.length === 0 && versiculos.length === prev.versiculos.length) return prev;
+      const versiculosNuevos: Versiculo[] = nuevos.map((referencia) => {
+        autoDetectados.current.add(normalizarReferencia(referencia));
+        return { id: generarId(), referencia };
+      });
+      return { ...prev, versiculos: [...versiculos, ...versiculosNuevos] };
     });
   }, [nota.contenido]);
 
@@ -128,7 +142,11 @@ export default function NuevaNota() {
   function quitarVersiculo(versId: string) {
     setNota((prev) => {
       const versiculo = prev.versiculos.find((v) => v.id === versId);
-      if (versiculo) ignorados.current.add(normalizarReferencia(versiculo.referencia));
+      if (versiculo) {
+        const clave = normalizarReferencia(versiculo.referencia);
+        ignorados.current.add(clave);
+        autoDetectados.current.delete(clave);
+      }
       return { ...prev, versiculos: prev.versiculos.filter((v) => v.id !== versId) };
     });
   }
