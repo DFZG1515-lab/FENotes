@@ -1,11 +1,10 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { BookOpen, BookMarked, NotebookText, Sparkles } from 'lucide-react';
+import { BookOpen, BookMarked, NotebookText } from 'lucide-react';
 
 const ITEMS = [
   { to: '/', label: 'Hoy', icon: BookOpen, activo: (p: string) => p === '/' },
   { to: '/notas', label: 'Notas', icon: NotebookText, activo: (p: string) => p === '/notas' || p.startsWith('/nota/') },
   { to: '/versiculos', label: 'Versículos', icon: BookMarked, activo: (p: string) => p.startsWith('/versiculo') },
-  { to: '/asistente', label: 'Asistente', icon: Sparkles, activo: (p: string) => p === '/asistente' },
 ];
 
 export default function BottomNav() {
@@ -13,7 +12,7 @@ export default function BottomNav() {
 
   return (
     <nav className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 backdrop-blur lg:hidden">
-      <ul className="grid grid-cols-4 px-2 pt-1">
+      <ul className="grid grid-cols-3 px-2 pt-1">
         {ITEMS.map(({ to, label, icon: Icon, activo }) => {
           const esActivo = activo(pathname);
           return (

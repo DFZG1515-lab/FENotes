@@ -8,17 +8,6 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-function promptLibre(): string {
-  return `Eres un asistente espiritual cristiano dentro de la app "Daily Bread". Ayudas al usuario con:
-
-1. Versículos bíblicos: significado, contexto histórico, conexiones con otros pasajes.
-2. Temas espirituales, devocionales o teológicos.
-3. Reflexiones personales sobre la fe.
-4. Preguntas sobre doctrina, historia bíblica o la vida cristiana.
-
-Responde siempre en español, con calidez y claridad. Sé conciso (2-4 párrafos) a menos que el usuario pida más detalle. Tono cercano y edificante, nunca frío ni académico.`;
-}
-
 function promptEnNota(ctx: { predicador?: string; tema?: string; contenido?: string; versiculos?: string[] }): string {
   const vers = ctx.versiculos?.filter(Boolean).join(', ');
   return `Eres un asistente espiritual cristiano dentro de la app "Daily Bread". El usuario está tomando notas de un sermón ahora mismo y tiene preguntas mientras escucha.
@@ -94,11 +83,6 @@ function toMessages(historial: MensajeChat[], mensaje: string) {
     ...historial.map((m) => ({ role: m.rol === 'usuario' ? 'user' : 'assistant', content: m.contenido })),
     { role: 'user', content: mensaje },
   ];
-}
-
-/** Chat libre del asistente — sin contexto de notas guardadas. */
-export async function enviarMensaje(mensaje: string, historial: MensajeChat[]): Promise<string> {
-  return llamarIA(promptLibre(), toMessages(historial, mensaje));
 }
 
 /** Chat contextualizado al sermón que el usuario está anotando ahora mismo. */

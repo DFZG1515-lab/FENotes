@@ -11,7 +11,6 @@ import DetalleNota from './pages/DetalleNota';
 import Versiculos from './pages/Versiculos';
 import VersiculoDetalle from './pages/VersiculoDetalle';
 import Configuracion from './pages/Configuracion';
-import Asistente from './pages/Asistente';
 
 const DURACION_SPLASH_MS = 900;
 const DURACION_SALIDA_MS = 300;
@@ -46,7 +45,6 @@ function App() {
           <Route path="/versiculos" element={<Versiculos />} />
           <Route path="/versiculo" element={<VersiculoDetalle />} />
           <Route path="/configuracion" element={<Configuracion />} />
-          <Route path="/asistente" element={<Asistente />} />
         </Route>
       </Routes>
     </HashRouter>
