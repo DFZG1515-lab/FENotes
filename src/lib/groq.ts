@@ -1,6 +1,7 @@
 import type { EstiloResumen, Nota, Resumen } from '../types';
 
-const MODEL = 'llama-3.3-70b-versatile';
+// Groq retiró llama-3.3-70b-versatile el 16/08/2026; gpt-oss-120b es su reemplazo recomendado.
+const MODEL = 'openai/gpt-oss-120b';
 const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 export class GroqError extends Error {}
@@ -59,6 +60,7 @@ export async function generarResumen(
         model: MODEL,
         messages: [{ role: 'user', content: construirPrompt(nota, estilo) }],
         response_format: { type: 'json_object' },
+        reasoning_effort: 'low',
       }),
     });
   } catch {
@@ -80,6 +82,11 @@ export async function generarResumen(
     if (response.status === 429) {
       throw new GroqError(
         `Se alcanzó el límite de uso gratuito de la API.${detalle ? ` (${detalle})` : ''} Espera un momento e intenta de nuevo.`,
+      );
+    }
+    if (response.status === 404 || (response.status === 400 && /model/i.test(detalle))) {
+      throw new GroqError(
+        `Groq ya no ofrece el modelo que usa la app (${MODEL}).${detalle ? ` ${detalle}` : ''} Actualiza la app o configura Gemini como respaldo.`,
       );
     }
     throw new GroqError(

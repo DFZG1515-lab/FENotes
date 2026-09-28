@@ -3,9 +3,9 @@ import type { MensajeChat } from '../types';
 
 export class AsistenteError extends Error {}
 
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const GROQ_MODEL = 'openai/gpt-oss-120b';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-3.8-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 function promptEnNota(ctx: { predicador?: string; tema?: string; contenido?: string; versiculos?: string[] }): string {
@@ -41,11 +41,12 @@ async function llamarIA(
         body: JSON.stringify({
           model: GROQ_MODEL,
           messages: [{ role: 'system', content: prompt }, ...messages],
+          reasoning_effort: 'low',
         }),
       });
       if (!res.ok) {
         if (res.status === 401) throw new AsistenteError('API key de Groq inválida. Revísala en Configuración.');
-        if (res.status === 429) throw new AsistenteError('__rate_limit__');
+        if (res.status === 429 || res.status === 404) throw new AsistenteError('__rate_limit__');
         throw new AsistenteError(`Error de Groq (${res.status}). Intenta de nuevo.`);
       }
       const data = await res.json();

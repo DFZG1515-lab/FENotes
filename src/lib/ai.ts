@@ -9,6 +9,7 @@ function esLimiteDeUso(e: unknown): boolean {
   return e instanceof GroqError && /límite|429/i.test(e.message);
 }
 
+
 function esperar(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -30,6 +31,7 @@ export async function generarResumenIA(nota: Nota, estilo: EstiloResumen): Promi
     }
   }
 
+  // Cualquier fallo de Groq (límite, modelo retirado, key inválida) cae a Gemini si está configurado.
   if (geminiApiKey) {
     try {
       return await generarConGemini(nota, estilo, geminiApiKey);

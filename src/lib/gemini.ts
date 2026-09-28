@@ -1,6 +1,6 @@
 import type { EstiloResumen, Nota, Resumen } from '../types';
 
-const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-3.8-flash';
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 export class GeminiError extends Error {}
