@@ -123,14 +123,14 @@ export default function Configuracion() {
   }
 
   return (
-    <div className="px-4 pt-4">
-      <h2 className="mb-1 text-xl font-semibold text-bark">Configuración</h2>
-      <p className="mb-5 text-sm text-bark-light">{total} notas guardadas en este dispositivo.</p>
+    <div className="mx-auto w-full max-w-[640px] px-5 pb-10 pt-3 lg:px-10 lg:pt-8">
+      <h2 className="mb-1 font-serif text-[30px] font-medium tracking-tight text-ink">Configuración</h2>
+      <p className="mb-5 text-sm text-ink-muted">{total} notas guardadas en este dispositivo.</p>
 
-      <section className="mb-6 rounded-2xl border border-line bg-surface p-4">
+      <section className="mb-6 rounded-xl border border-line bg-page p-4 lg:p-5">
         <h3 className="mb-1 text-sm font-semibold text-bark">API key de Groq</h3>
         <p className="mb-3 flex items-start gap-1.5 text-xs leading-relaxed text-bark-light">
-          <ShieldCheck size={14} className="mt-0.5 shrink-0 text-sage" />
+          <ShieldCheck size={14} className="mt-0.5 shrink-0 text-gilt" />
           Tu API key se guarda solo en este navegador (localStorage) y se usa únicamente para llamar a la API de
           Groq desde tu dispositivo. Nunca se envía a ningún otro servidor. Consíguela gratis en
           console.groq.com/keys.
@@ -141,7 +141,7 @@ export default function Configuracion() {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="gsk_..."
-            className="w-full rounded-xl border border-line bg-surface px-4 py-3 pr-12 text-base text-bark focus:border-sage focus:outline-none"
+            className="w-full rounded-[10px] border border-line bg-paper px-4 py-3 pr-12 text-base text-ink focus:border-gilt-light focus:outline-none"
           />
           <button
             type="button"
@@ -155,16 +155,16 @@ export default function Configuracion() {
         <button
           type="button"
           onClick={guardarApiKey}
-          className="mt-3 w-full rounded-xl bg-sage py-3 text-sm font-semibold text-cream active:bg-sage-dark"
+          className="mt-3 w-full rounded-[10px] bg-ribbon py-3 text-sm font-semibold text-white hover:bg-ribbon-dark active:bg-ribbon-dark"
         >
           Guardar API key
         </button>
       </section>
 
-      <section className="mb-6 rounded-2xl border border-line bg-surface p-4">
+      <section className="mb-6 rounded-xl border border-line bg-page p-4 lg:p-5">
         <h3 className="mb-1 text-sm font-semibold text-bark">API key de Gemini (respaldo, opcional)</h3>
         <p className="mb-3 flex items-start gap-1.5 text-xs leading-relaxed text-bark-light">
-          <ShieldCheck size={14} className="mt-0.5 shrink-0 text-sage" />
+          <ShieldCheck size={14} className="mt-0.5 shrink-0 text-gilt" />
           Si Groq llega a su límite de uso, la app intenta automáticamente con Gemini para que no te quedes sin
           resumen. Consíguela gratis en aistudio.google.com/apikey. Es opcional, pero recomendada.
         </p>
@@ -174,7 +174,7 @@ export default function Configuracion() {
             value={geminiApiKey}
             onChange={(e) => setGeminiApiKey(e.target.value)}
             placeholder="AIza..."
-            className="w-full rounded-xl border border-line bg-surface px-4 py-3 pr-12 text-base text-bark focus:border-sage focus:outline-none"
+            className="w-full rounded-[10px] border border-line bg-paper px-4 py-3 pr-12 text-base text-ink focus:border-gilt-light focus:outline-none"
           />
           <button
             type="button"
@@ -188,20 +188,22 @@ export default function Configuracion() {
         <button
           type="button"
           onClick={guardarGeminiApiKey}
-          className="mt-3 w-full rounded-xl bg-sage py-3 text-sm font-semibold text-cream active:bg-sage-dark"
+          className="mt-3 w-full rounded-[10px] bg-ribbon py-3 text-sm font-semibold text-white hover:bg-ribbon-dark active:bg-ribbon-dark"
         >
           Guardar API key de respaldo
         </button>
       </section>
 
-      <section className="mb-6 rounded-2xl border border-line bg-surface p-4">
+      <section className="mb-6 rounded-xl border border-line bg-page p-4 lg:p-5">
         <h3 className="mb-1 text-sm font-semibold text-bark">Widget y respaldo (GitHub)</h3>
         <p className="mb-3 flex items-start gap-1.5 text-xs leading-relaxed text-bark-light">
-          <ShieldCheck size={14} className="mt-0.5 shrink-0 text-sage" />
-          Para mostrar tu nota más reciente en un widget de pantalla de inicio, y respaldar todas tus notas
-          automáticamente, necesitas un token de GitHub con permiso <strong>"gist"</strong> únicamente. Créalo en
-          github.com/settings/tokens (Generate new token → classic → marca solo "gist"). Cada vez que guardes una
-          nota o generes un resumen, se publica automáticamente en un Gist privado tuyo.
+          <ShieldCheck size={14} className="mt-0.5 shrink-0 text-gilt" />
+          <span>
+            Para mostrar tu nota más reciente en un widget de pantalla de inicio, y respaldar todas tus notas
+            automáticamente, necesitas un token de GitHub con permiso <strong>"gist"</strong> únicamente. Créalo en
+            github.com/settings/tokens (Generate new token → classic → marca solo "gist"). Cada vez que guardes una
+            nota o generes un resumen, se publica automáticamente en un Gist privado tuyo.
+          </span>
         </p>
         <div className="relative mb-3">
           <input
@@ -209,7 +211,7 @@ export default function Configuracion() {
             value={githubToken}
             onChange={(e) => setGithubToken(e.target.value)}
             placeholder="ghp_..."
-            className="w-full rounded-xl border border-line bg-surface px-4 py-3 pr-12 text-base text-bark focus:border-sage focus:outline-none"
+            className="w-full rounded-[10px] border border-line bg-paper px-4 py-3 pr-12 text-base text-ink focus:border-gilt-light focus:outline-none"
           />
           <button
             type="button"
@@ -223,7 +225,7 @@ export default function Configuracion() {
         <button
           type="button"
           onClick={guardarGithubToken}
-          className="mb-2 w-full rounded-xl bg-sage py-3 text-sm font-semibold text-cream active:bg-sage-dark"
+          className="mb-2 w-full rounded-[10px] bg-ribbon py-3 text-sm font-semibold text-white hover:bg-ribbon-dark active:bg-ribbon-dark"
         >
           Guardar token de GitHub
         </button>
@@ -231,7 +233,7 @@ export default function Configuracion() {
           type="button"
           onClick={sincronizarAhora}
           disabled={sincronizando}
-          className="mb-2 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-line text-sm font-medium text-bark active:bg-cream-dark/40 disabled:opacity-50"
+          className="mb-2 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[10px] border border-line text-sm font-semibold text-ink hover:bg-paper active:bg-cream-dark/40 disabled:opacity-50"
         >
           <RefreshCw size={16} className={sincronizando ? 'animate-spin' : ''} />
           Sincronizar ahora
@@ -240,14 +242,14 @@ export default function Configuracion() {
           type="button"
           onClick={restaurarAhora}
           disabled={restaurando}
-          className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-line text-sm font-medium text-bark active:bg-cream-dark/40 disabled:opacity-50"
+          className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[10px] border border-line text-sm font-semibold text-ink hover:bg-paper active:bg-cream-dark/40 disabled:opacity-50"
         >
           <CloudDownload size={16} className={restaurando ? 'animate-spin' : ''} />
           Restaurar respaldo desde GitHub
         </button>
 
         {rawUrl && (
-          <div className="mt-3 rounded-xl bg-cream-dark/40 p-3">
+          <div className="mt-3 rounded-xl bg-paper p-3">
             <p className="mb-1.5 text-xs font-medium text-bark-light">
               URL para pegar en tu script de Scriptable:
             </p>
@@ -257,7 +259,7 @@ export default function Configuracion() {
                 type="button"
                 onClick={copiarUrl}
                 aria-label="Copiar URL"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface text-sage-dark"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-page text-gilt"
               >
                 {copiado ? <Check size={15} /> : <Copy size={15} />}
               </button>
@@ -269,14 +271,14 @@ export default function Configuracion() {
       {mensaje && (
         <div
           className={`mb-5 rounded-xl px-4 py-3 text-sm ${
-            mensaje.tipo === 'ok' ? 'bg-sage/10 text-sage-dark' : 'bg-red-50 text-red-700'
+            mensaje.tipo === 'ok' ? 'border border-gilt-light bg-paper text-ink' : 'bg-[#f6e3e3] text-[#7f2e2e]'
           }`}
         >
           {mensaje.texto}
         </div>
       )}
 
-      <section className="mb-6 rounded-2xl border border-line bg-surface p-4">
+      <section className="mb-6 rounded-xl border border-line bg-page p-4 lg:p-5">
         <h3 className="mb-1 text-sm font-semibold text-bark">Respaldo manual</h3>
         <p className="mb-3 text-xs leading-relaxed text-bark-light">
           Exporta tus notas a un archivo JSON para resguardarlas o llevarlas a otro dispositivo, o impórtalas de
@@ -286,7 +288,7 @@ export default function Configuracion() {
           <button
             type="button"
             onClick={exportar}
-            className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-line text-sm font-medium text-bark active:bg-cream-dark/40"
+            className="flex min-h-[48px] items-center justify-center gap-2 rounded-[10px] border border-line text-sm font-semibold text-ink hover:bg-paper active:bg-cream-dark/40"
           >
             <Download size={18} />
             Exportar a JSON
@@ -294,7 +296,7 @@ export default function Configuracion() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-line text-sm font-medium text-bark active:bg-cream-dark/40"
+            className="flex min-h-[48px] items-center justify-center gap-2 rounded-[10px] border border-line text-sm font-semibold text-ink hover:bg-paper active:bg-cream-dark/40"
           >
             <Upload size={18} />
             Importar desde JSON
@@ -303,14 +305,14 @@ export default function Configuracion() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-line bg-surface p-4">
+      <section className="rounded-xl border border-line bg-page p-4 lg:p-5">
         <button
           type="button"
           onClick={() => setAcercaDeAbierto((v) => !v)}
           className="flex w-full items-center justify-between"
         >
           <span className="flex items-center gap-2 text-sm font-semibold text-bark">
-            <Info size={16} className="text-sage" />
+            <Info size={16} className="text-gilt" />
             Acerca de Daily Bread
           </span>
           <ChevronDown size={18} className={`text-bark-light transition-transform ${acercaDeAbierto ? 'rotate-180' : ''}`} />

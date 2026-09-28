@@ -1,51 +1,63 @@
 import { Sparkles } from 'lucide-react';
 import type { Resumen } from '../types';
 
-export default function ResumenCard({ resumen }: { resumen: Resumen }) {
+interface Props {
+  resumen: Resumen;
+  onRegenerar?: () => void;
+  regenerando?: boolean;
+}
+
+export default function ResumenCard({ resumen, onRegenerar, regenerando = false }: Props) {
   return (
-    <div className="rounded-2xl border border-sage/30 bg-sage/5 p-4">
-      <div className="mb-3 flex items-center gap-2 text-sage-dark">
-        <Sparkles size={16} />
-        <span className="text-sm font-semibold">
-          Resumen con IA · {resumen.estilo === 'estudio' ? 'Estudio detallado' : 'Devocional corto'}
-        </span>
+    <div className="rounded-xl border border-line bg-paper p-4">
+      <div className="flex items-center gap-1.5 text-xs font-bold text-gilt">
+        <Sparkles size={13} strokeWidth={2.2} />
+        Resumen con IA · {resumen.estilo === 'estudio' ? 'Estudio detallado' : 'Devocional corto'}
       </div>
 
-      <div className="space-y-3 text-sm text-bark">
-        <div>
-          <h4 className="mb-1 font-semibold text-bark">Idea central</h4>
-          <p className="leading-relaxed">{resumen.ideaCentral}</p>
-        </div>
+      <p className="mt-2.5 font-serif text-base leading-[1.45] text-ink">{resumen.ideaCentral}</p>
 
-        {resumen.puntosPrincipales.length > 0 && (
-          <div>
-            <h4 className="mb-1 font-semibold text-bark">Puntos principales</h4>
-            <ul className="list-disc space-y-1 pl-5 leading-relaxed">
-              {resumen.puntosPrincipales.map((p, i) => (
-                <li key={i}>{p}</li>
-              ))}
-            </ul>
+      {resumen.puntosPrincipales.length > 0 && (
+        <>
+          <div className="eyebrow mt-3 text-ink-muted">Puntos</div>
+          <ul className="mt-1.5 list-disc space-y-1 pl-4 text-[13px] leading-relaxed text-ink">
+            {resumen.puntosPrincipales.map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {resumen.versiculosClave.length > 0 && (
+        <>
+          <div className="eyebrow mt-3 text-ink-muted">Versículos clave</div>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {resumen.versiculosClave.map((v, i) => (
+              <span key={i} className="rounded-full border border-line bg-page px-2.5 py-1 text-xs font-bold text-gilt">
+                {v}
+              </span>
+            ))}
           </div>
-        )}
+        </>
+      )}
 
-        {resumen.versiculosClave.length > 0 && (
-          <div>
-            <h4 className="mb-1 font-semibold text-bark">Versículos clave</h4>
-            <div className="flex flex-wrap gap-2">
-              {resumen.versiculosClave.map((v, i) => (
-                <span key={i} className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-sage-dark">
-                  {v}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+      {resumen.aplicacion && (
+        <>
+          <div className="eyebrow mt-3 text-ink-muted">Para esta semana</div>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-ink">{resumen.aplicacion}</p>
+        </>
+      )}
 
-        <div>
-          <h4 className="mb-1 font-semibold text-bark">Aplicación práctica</h4>
-          <p className="leading-relaxed">{resumen.aplicacion}</p>
-        </div>
-      </div>
+      {onRegenerar && (
+        <button
+          type="button"
+          onClick={onRegenerar}
+          disabled={regenerando}
+          className="mt-3.5 h-8 rounded-lg border border-line bg-page px-3 text-xs font-semibold text-ink-soft hover:bg-cream-dark/50 disabled:opacity-50"
+        >
+          {regenerando ? 'Generando…' : 'Regenerar resumen'}
+        </button>
+      )}
     </div>
   );
 }

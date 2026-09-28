@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Loader2, NotebookText } from 'lucide-react';
 import { parseReferencia } from '../lib/bibleRef';
@@ -16,75 +16,80 @@ export default function VersiculoDetalle() {
   const navigate = useNavigate();
   const estado = location.state as EstadoNavegacion | null;
 
-  const [versos, setVersos] = useState<VersoTexto[] | null>(null);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState('');
-
   const referencia = estado?.referencia ?? '';
+  const parsed = useMemo(() => (referencia ? parseReferencia(referencia) : null), [referencia]);
+  const errorReferencia = !referencia
+    ? 'No se especificó qué versículo mostrar.'
+    : !parsed
+      ? 'No pudimos interpretar esta referencia bíblica.'
+      : '';
+
+  const [carga, setCarga] = useState<{ referencia: string; versos: VersoTexto[] | null; error: string } | null>(null);
+  const cargaActual = carga?.referencia === referencia ? carga : null;
+  const cargando = !errorReferencia && !cargaActual;
+  const versos = cargaActual?.versos ?? null;
+  const error = errorReferencia || cargaActual?.error || '';
 
   useEffect(() => {
-    if (!referencia) {
-      setError('No se especificó qué versículo mostrar.');
-      setCargando(false);
-      return;
-    }
-
-    const parsed = parseReferencia(referencia);
-    if (!parsed) {
-      setError('No pudimos interpretar esta referencia bíblica.');
-      setCargando(false);
-      return;
-    }
-
-    setCargando(true);
+    if (!parsed) return;
+    let activo = true;
     obtenerTextoCapitulo(parsed)
-      .then((v) => setVersos(v))
-      .catch((e) => setError(e instanceof BibleError ? e.message : 'Ocurrió un error al cargar el versículo.'))
-      .finally(() => setCargando(false));
-  }, [referencia]);
+      .then((v) => activo && setCarga({ referencia, versos: v, error: '' }))
+      .catch((e) => {
+        if (!activo) return;
+        setCarga({
+          referencia,
+          versos: null,
+          error: e instanceof BibleError ? e.message : 'Ocurrió un error al cargar el versículo.',
+        });
+      });
+    return () => {
+      activo = false;
+    };
+  }, [parsed, referencia]);
 
   return (
-    <div className="px-4 pt-4">
+    <div className="mx-auto w-full max-w-[720px] px-5 pt-3 lg:px-10 lg:pt-8">
       <button
         type="button"
         onClick={() => navigate(-1)}
-        className="mb-3 flex items-center gap-1 text-sm font-medium text-bark-light"
+        className="safe-top -ml-1 mb-4 flex items-center gap-1 text-sm font-semibold text-ink-soft"
       >
         <ChevronLeft size={18} />
         Volver
       </button>
 
-      <h2 className="mb-4 text-xl font-semibold text-bark">{referencia || 'Versículo'}</h2>
+      <span className="eyebrow text-gilt">Reina-Valera 1960</span>
+      <h2 className="mt-1.5 font-serif text-[32px] font-medium leading-tight tracking-tight text-ink lg:text-[40px]">
+        {referencia || 'Versículo'}
+      </h2>
+
+      <div className="mt-5 h-px bg-gilt-light" />
 
       {cargando && (
-        <div className="flex min-h-[120px] items-center justify-center gap-2 rounded-2xl border border-line bg-surface text-sm text-bark-light">
+        <div className="flex min-h-[120px] items-center justify-center gap-2 text-sm text-ink-muted">
           <Loader2 size={18} className="animate-spin" />
-          Cargando texto bíblico...
+          Cargando texto bíblico…
         </div>
       )}
 
-      {!cargando && error && (
-        <div className="rounded-2xl border border-line bg-surface p-4 text-sm text-bark-light">{error}</div>
-      )}
+      {!cargando && error && <p className="py-6 text-sm text-ink-muted">{error}</p>}
 
       {!cargando && versos && (
-        <div className="rounded-2xl border border-line bg-surface p-5">
-          <p className="text-lg leading-relaxed text-bark">
-            {versos.map((v) => (
-              <span key={v.numero}>
-                <sup className="mr-1 font-semibold text-sage-dark">{v.numero}</sup>
-                {v.texto}{' '}
-              </span>
-            ))}
-          </p>
-          <p className="mt-4 text-xs text-bark-light">Reina-Valera 1960</p>
-        </div>
+        <p className="py-6 font-serif text-xl leading-[1.7] text-ink lg:text-[22px]">
+          {versos.map((v) => (
+            <span key={v.numero}>
+              <sup className="mr-1 text-[12px] font-bold text-gilt">{v.numero}</sup>
+              {v.texto}{' '}
+            </span>
+          ))}
+        </p>
       )}
 
       {estado?.notaId && (
         <Link
           to={`/nota/${estado.notaId}`}
-          className="mt-4 flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-line bg-surface text-sm font-medium text-bark active:bg-cream-dark/40"
+          className="mb-8 flex min-h-[46px] items-center justify-center gap-2 rounded-[10px] border border-line bg-page text-sm font-semibold text-ink hover:bg-paper active:bg-cream-dark/40"
         >
           <NotebookText size={16} />
           Ver en mi nota{estado.fecha ? ` (${estado.fecha})` : ''}

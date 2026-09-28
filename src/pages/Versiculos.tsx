@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Search, BookMarked } from 'lucide-react';
 import { getNotas } from '../lib/storage';
+import VersiculoMargen from '../components/VersiculoMargen';
 
 function formatearFecha(fecha: string): string {
   const d = new Date(fecha + 'T00:00:00');
@@ -29,43 +29,53 @@ export default function Versiculos() {
   }, [items, busqueda]);
 
   return (
-    <div className="px-4 pt-4">
-      <h2 className="mb-4 text-xl font-semibold text-bark">Versículos guardados</h2>
+    <div className="mx-auto w-full max-w-[720px] px-5 pt-3 lg:px-10 lg:pt-8">
+      <div className="flex items-baseline justify-between">
+        <h2 className="font-serif text-[30px] font-medium tracking-tight text-ink">Versículos</h2>
+        <span className="text-[13px] text-ink-muted">
+          {items.length} {items.length === 1 ? 'guardado' : 'guardados'}
+        </span>
+      </div>
+      <p className="mt-1 text-sm text-ink-muted">Todo lo que has mencionado en tus notas, listo para volver a leer.</p>
 
-      <div className="relative mb-4">
-        <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-bark-light" />
+      <div className="relative mb-2 mt-4">
+        <label htmlFor="buscar-versiculos" className="sr-only">
+          Buscar versículo o tema
+        </label>
+        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
         <input
+          id="buscar-versiculos"
+          type="search"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          placeholder="Buscar versículo o tema..."
-          className="w-full rounded-xl border border-line bg-surface py-3 pl-10 pr-4 text-base text-bark focus:border-sage focus:outline-none"
+          placeholder="Buscar versículo o tema"
+          className="h-[42px] w-full rounded-[10px] border border-line bg-page pl-9 pr-3 text-[15px] text-ink placeholder:text-ink-muted/70 focus:border-gilt-light focus:outline-none lg:h-10 lg:text-sm"
         />
       </div>
 
       {filtrados.length === 0 ? (
-        <div className="mt-16 flex flex-col items-center gap-3 text-center text-bark-light">
-          <BookMarked size={40} strokeWidth={1.5} />
+        <div className="mt-16 flex flex-col items-center gap-3 text-center text-ink-muted">
+          <BookMarked size={36} strokeWidth={1.5} />
           <p className="max-w-[260px] text-sm">
             {items.length === 0
-              ? 'Aún no has marcado versículos en tus notas.'
-              : 'No se encontraron versículos con esa búsqueda.'}
+              ? 'Aún no has mencionado versículos en tus notas. Aparecerán aquí solos al escribirlos.'
+              : 'No hay versículos que coincidan con esa búsqueda.'}
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="pb-8">
+          <div className="eyebrow flex items-center gap-2 pt-3 text-gilt">
+            <span>Al margen</span>
+            <span className="h-px flex-1 bg-gilt-light" />
+          </div>
           {filtrados.map((item) => (
-            <Link
+            <VersiculoMargen
               key={item.id}
-              to="/versiculo"
-              state={{ referencia: item.referencia, notaId: item.notaId, fecha: formatearFecha(item.fecha) }}
-              className="block rounded-xl border border-line bg-surface p-3.5 active:bg-cream-dark/40"
-            >
-              <p className="font-semibold text-sage-dark">{item.referencia}</p>
-              <p className="mt-0.5 text-xs text-bark-light">
-                {formatearFecha(item.fecha)}
-                {item.tema ? ` · ${item.tema}` : ''}
-              </p>
-            </Link>
+              referencia={item.referencia}
+              variante="margen"
+              enlace={{ notaId: item.notaId, fecha: formatearFecha(item.fecha), tema: item.tema }}
+              subtitulo={`${formatearFecha(item.fecha)}${item.tema ? ` · ${item.tema}` : ''}`}
+            />
           ))}
         </div>
       )}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
+import NotasSplit from './components/NotasSplit';
+import NotasVacio from './components/NotasVacio';
 import Splash from './components/Splash';
 import Devocional from './pages/Devocional';
 import Inicio from './pages/Inicio';
@@ -35,9 +37,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Devocional />} />
         <Route element={<Layout />}>
-          <Route path="/notas" element={<Inicio />} />
+          <Route element={<NotasSplit lista={<Inicio />} />}>
+            <Route path="/notas" element={<NotasVacio />} />
+            <Route path="/nota/:id" element={<DetalleNota />} />
+          </Route>
           <Route path="/nueva" element={<NuevaNota />} />
-          <Route path="/nota/:id" element={<DetalleNota />} />
           <Route path="/nota/:id/editar" element={<NuevaNota />} />
           <Route path="/versiculos" element={<Versiculos />} />
           <Route path="/versiculo" element={<VersiculoDetalle />} />

@@ -1,76 +1,36 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { NotebookText, BookMarked, Sparkles, Plus } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { BookOpen, BookMarked, NotebookText, Sparkles } from 'lucide-react';
+
+const ITEMS = [
+  { to: '/', label: 'Hoy', icon: BookOpen, activo: (p: string) => p === '/' },
+  { to: '/notas', label: 'Notas', icon: NotebookText, activo: (p: string) => p === '/notas' || p.startsWith('/nota/') },
+  { to: '/versiculos', label: 'Versículos', icon: BookMarked, activo: (p: string) => p.startsWith('/versiculo') },
+  { to: '/asistente', label: 'Asistente', icon: Sparkles, activo: (p: string) => p === '/asistente' },
+];
 
 export default function BottomNav() {
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   return (
-    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[430px] border-t border-line bg-cream/95 backdrop-blur">
-      <ul className="flex items-center">
-        <li className="flex-1">
-          <NavLink
-            to="/notas"
-            className={({ isActive }) =>
-              `flex min-h-[60px] flex-col items-center justify-center gap-1 text-xs ${
-                isActive ? 'text-sage-dark' : 'text-bark-light'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <NotebookText size={22} strokeWidth={isActive ? 2.4 : 2} />
-                <span className={isActive ? 'font-medium' : ''}>Notas</span>
-              </>
-            )}
-          </NavLink>
-        </li>
-
-        <li className="flex-1">
-          <NavLink
-            to="/versiculos"
-            className={({ isActive }) =>
-              `flex min-h-[60px] flex-col items-center justify-center gap-1 text-xs ${
-                isActive ? 'text-sage-dark' : 'text-bark-light'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <BookMarked size={22} strokeWidth={isActive ? 2.4 : 2} />
-                <span className={isActive ? 'font-medium' : ''}>Versículos</span>
-              </>
-            )}
-          </NavLink>
-        </li>
-
-        <li className="flex-1">
-          <NavLink
-            to="/asistente"
-            className={({ isActive }) =>
-              `flex min-h-[60px] flex-col items-center justify-center gap-1 text-xs ${
-                isActive ? 'text-sage-dark' : 'text-bark-light'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <Sparkles size={22} strokeWidth={isActive ? 2.4 : 2} />
-                <span className={isActive ? 'font-medium' : ''}>Asistente</span>
-              </>
-            )}
-          </NavLink>
-        </li>
-
-        <li className="flex flex-1 justify-center pb-2">
-          <button
-            type="button"
-            onClick={() => navigate('/nueva')}
-            aria-label="Nueva nota"
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-clay text-cream shadow-md shadow-black/20 transition-transform active:scale-90"
-          >
-            <Plus size={24} strokeWidth={2.4} />
-          </button>
-        </li>
+    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 backdrop-blur lg:hidden">
+      <ul className="grid grid-cols-4 px-2 pt-1">
+        {ITEMS.map(({ to, label, icon: Icon, activo }) => {
+          const esActivo = activo(pathname);
+          return (
+            <li key={to} className="relative">
+              {esActivo && <span aria-hidden className="ribbon absolute left-1/2 top-[-5px] h-4 w-[5px] -translate-x-1/2" />}
+              <NavLink
+                to={to}
+                className={`flex min-h-[58px] flex-col items-center justify-center gap-1 text-[11px] ${
+                  esActivo ? 'font-semibold text-ink' : 'font-medium text-ink-muted'
+                }`}
+              >
+                <Icon size={22} strokeWidth={esActivo ? 2.2 : 1.8} />
+                <span>{label}</span>
+              </NavLink>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

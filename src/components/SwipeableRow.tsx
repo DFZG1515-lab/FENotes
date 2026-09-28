@@ -16,6 +16,8 @@ export default function SwipeableRow({ onDelete, children }: Props) {
   const startedDrag = useRef(false);
 
   function onPointerDown(e: React.PointerEvent) {
+    // En escritorio no hay gesto de deslizar: la nota se elimina desde la página de lectura.
+    if (window.matchMedia('(min-width: 1024px)').matches) return;
     startX.current = e.clientX;
     startedDrag.current = false;
     setArrastrando(true);
@@ -41,9 +43,9 @@ export default function SwipeableRow({ onDelete, children }: Props) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl">
+    <div className="relative overflow-hidden rounded-xl">
       <div
-        className="absolute inset-y-0 right-0 flex items-center justify-center bg-red-600"
+        className="absolute inset-y-0 right-0 flex items-center justify-center bg-[#9a3a3a] lg:hidden"
         style={{ width: ANCHO_BOTON }}
       >
         <button
@@ -69,7 +71,7 @@ export default function SwipeableRow({ onDelete, children }: Props) {
           transition: arrastrando ? 'none' : 'transform 0.2s ease',
           touchAction: 'pan-y',
         }}
-        className="relative bg-cream"
+        className="relative bg-paper"
       >
         {children}
       </div>

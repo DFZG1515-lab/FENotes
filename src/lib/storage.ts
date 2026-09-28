@@ -25,8 +25,12 @@ function readData(): FeNotesData {
   }
 }
 
+/** Evento que se emite cada vez que cambian las notas, para que la lista abierta se actualice sola. */
+export const EVENTO_NOTAS_CAMBIARON = 'fenotes:notas-cambiaron';
+
 function writeData(data: FeNotesData) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  window.dispatchEvent(new Event(EVENTO_NOTAS_CAMBIARON));
 }
 
 export function getNotas(): Nota[] {

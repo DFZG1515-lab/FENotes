@@ -5,12 +5,12 @@ interface Props {
   saliendo?: boolean;
 }
 
-const SAGE = '#100e0a';
+const FONDO = '#14100d';
 
 export default function Splash({ saliendo = false }: Props) {
   useEffect(() => {
-    document.documentElement.style.backgroundColor = SAGE;
-    document.body.style.backgroundColor = SAGE;
+    document.documentElement.style.backgroundColor = FONDO;
+    document.body.style.backgroundColor = FONDO;
     return () => {
       document.documentElement.style.backgroundColor = '';
       document.body.style.backgroundColor = '';
@@ -18,7 +18,12 @@ export default function Splash({ saliendo = false }: Props) {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center" style={{ backgroundColor: '#100e0a' }}>
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center" style={{ backgroundColor: FONDO }}>
+      <span
+        aria-hidden
+        className="ribbon absolute left-1/2 top-0 w-1.5 -translate-x-1/2"
+        style={{ height: 88, animation: !saliendo ? 'splash-bar 0.6s ease-out both' : undefined, transformOrigin: 'top' }}
+      />
       <div
         className="flex flex-col items-center gap-3"
         style={{
@@ -27,43 +32,26 @@ export default function Splash({ saliendo = false }: Props) {
         }}
       >
         <div
+          className="flex h-16 w-16 items-center justify-center rounded-2xl text-paper"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 64,
-            height: 64,
-            borderRadius: 16,
-            backgroundColor: 'rgba(250,246,240,0.12)',
-            color: '#faf6f0',
-            animation: !saliendo
-              ? 'splash-logo-in 0.5s cubic-bezier(0.22,1,0.36,1) both, splash-pulse-ring 1.8s ease-out 0.5s infinite'
-              : undefined,
+            backgroundColor: 'rgba(244,239,228,0.10)',
+            animation: !saliendo ? 'splash-logo-in 0.5s cubic-bezier(0.22,1,0.36,1) both' : undefined,
           }}
         >
-          <Logo size={32} />
+          <Logo size={30} />
         </div>
 
         <h1
-          style={{
-            fontSize: '1.125rem',
-            fontWeight: 600,
-            letterSpacing: '-0.01em',
-            color: '#faf6f0',
-            animation: !saliendo ? 'splash-text-in 0.5s ease-out 0.15s both' : undefined,
-          }}
+          className="font-serif text-2xl font-medium tracking-tight text-paper"
+          style={{ animation: !saliendo ? 'splash-text-in 0.5s ease-out 0.15s both' : undefined }}
         >
           Daily Bread
         </h1>
 
-        <div style={{ marginTop: 16, height: 2, width: 96, overflow: 'hidden', borderRadius: 9999, backgroundColor: 'rgba(250,246,240,0.18)' }}>
+        <div className="mt-4 h-0.5 w-24 overflow-hidden rounded-full" style={{ backgroundColor: 'rgba(244,239,228,0.15)' }}>
           <div
-            style={{
-              height: '100%',
-              borderRadius: 9999,
-              backgroundColor: 'rgba(250,246,240,0.55)',
-              animation: !saliendo ? 'splash-bar 0.85s cubic-bezier(0.4,0,0.2,1) forwards' : undefined,
-            }}
+            className="h-full rounded-full bg-gilt-light"
+            style={{ animation: !saliendo ? 'splash-bar 0.85s cubic-bezier(0.4,0,0.2,1) forwards' : undefined }}
           />
         </div>
       </div>
