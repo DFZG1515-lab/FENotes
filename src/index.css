@@ -44,7 +44,7 @@
 
 /*
   Sensación de app nativa: sin selección de texto, sin menú de mantener presionado,
-  sin zoom por doble toque y sin rebote. La pantalla queda fija y solo #root hace scroll.
+  sin zoom por doble toque y sin rebote.
 */
 * {
   -webkit-tap-highlight-color: transparent;
@@ -69,21 +69,20 @@ a {
   -webkit-user-drag: none;
 }
 
+/*
+  El scroll es el de la página, como en Tank: si html/body no pueden hacer scroll,
+  iOS 26 sigue reservando abajo el espacio de la barra de Safari aunque la app
+  esté instalada. El rebote se quita con overscroll-behavior.
+*/
 html,
 body {
-  height: 100%;
-  overflow: hidden;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
 #root {
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
+  min-height: 100%;
 }
 
 body {
