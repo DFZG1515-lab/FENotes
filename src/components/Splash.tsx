@@ -11,7 +11,11 @@ export default function Splash({ saliendo = false }: Props) {
   useEffect(() => {
     document.documentElement.style.backgroundColor = FONDO;
     document.body.style.backgroundColor = FONDO;
+    // La barra de estado de iOS toma este color; se regresa al papel al salir.
+    const metaTema = document.getElementById('meta-tema');
+    metaTema?.setAttribute('content', FONDO);
     return () => {
+      metaTema?.setAttribute('content', '#f4efe4');
       document.documentElement.style.backgroundColor = '';
       document.body.style.backgroundColor = '';
     };

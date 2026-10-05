@@ -15,7 +15,7 @@ export default defineConfig({
         name: 'Daily Bread',
         short_name: 'Daily Bread',
         description: 'Toma notas durante servicios y cultos, y genera resúmenes con IA',
-        theme_color: '#1f1915',
+        theme_color: '#f4efe4',
         background_color: '#f4efe4',
         display: 'standalone',
         orientation: 'portrait',
