@@ -42,14 +42,49 @@
   color-scheme: light;
 }
 
+/*
+  Sensación de app nativa: sin selección de texto, sin menú de mantener presionado,
+  sin zoom por doble toque y sin rebote. La pantalla queda fija y solo #root hace scroll.
+*/
 * {
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+input,
+textarea,
+select,
+[contenteditable='true'] {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+img,
+svg,
+a {
+  -webkit-user-drag: none;
 }
 
 html,
-body,
+body {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 #root {
   height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -57,7 +92,11 @@ body {
   background-color: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  overscroll-behavior-y: none;
+}
+
+/* Ningún contenedor interno rebota ni encadena el scroll a la página. */
+#root * {
+  overscroll-behavior: contain;
 }
 
 @layer base {

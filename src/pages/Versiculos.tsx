@@ -49,7 +49,7 @@ export default function Versiculos() {
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar versículo o tema"
-          className="h-[42px] w-full rounded-[10px] border border-line bg-page pl-9 pr-3 text-[15px] text-ink placeholder:text-ink-muted/70 focus:border-gilt-light focus:outline-none lg:h-10 lg:text-sm"
+          className="h-[42px] w-full rounded-[10px] border border-line bg-page pl-9 pr-3 text-base text-ink placeholder:text-ink-muted/70 focus:border-gilt-light focus:outline-none lg:h-10 lg:text-sm"
         />
       </div>
 

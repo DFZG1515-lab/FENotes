@@ -44,7 +44,7 @@ function formatearFechaCorta(fecha: string): string {
 }
 
 const claseCampo =
-  'h-9 w-full border-0 border-b border-line bg-transparent text-[15px] text-ink placeholder:text-ink-muted/60 focus:border-gilt-light focus:outline-none';
+  'h-9 w-full border-0 border-b border-line bg-transparent text-base text-ink placeholder:text-ink-muted/60 focus:border-gilt-light focus:outline-none lg:text-[15px]';
 
 export default function NuevaNota() {
   const { id } = useParams();
@@ -276,7 +276,7 @@ export default function NuevaNota() {
             }
           }}
           placeholder="Pregunta mientras anotas"
-          className="h-10 w-full rounded-lg border border-line bg-page pl-8 pr-3 text-[13px] text-ink placeholder:text-ink-muted/70 focus:border-gilt-light focus:outline-none lg:h-9"
+          className="h-10 w-full rounded-lg border border-line bg-page pl-8 pr-3 text-base text-ink placeholder:text-ink-muted/70 focus:border-gilt-light focus:outline-none lg:h-9 lg:text-[13px]"
         />
       </div>
       <button
@@ -465,7 +465,7 @@ export default function NuevaNota() {
               value={nuevoVersiculo}
               onChange={(e) => setNuevoVersiculo(e.target.value)}
               placeholder="Agregar"
-              className="h-8 w-[120px] bg-transparent text-[13px] font-semibold text-ink placeholder:text-ink-muted focus:outline-none"
+              className="h-8 w-[120px] bg-transparent text-base font-semibold text-ink placeholder:text-ink-muted focus:outline-none"
             />
           </form>
         </div>
