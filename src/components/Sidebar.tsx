@@ -45,7 +45,7 @@ export default function Sidebar() {
       />
 
       <div className="mb-7 flex items-center gap-3 pl-6">
-        <Logo size={20} className="text-gilt-light" liston="var(--color-sage-light)" />
+        <Logo size={20} liston="var(--color-gilt-light)" />
         <span className="font-serif text-[22px] font-medium tracking-tight text-paper">Daily Bread</span>
       </div>
 

@@ -38,7 +38,7 @@ export default function Splash({ saliendo = false }: Props) {
             animation: !saliendo ? 'splash-logo-in 0.5s cubic-bezier(0.22,1,0.36,1) both' : undefined,
           }}
         >
-          <Logo size={30} className="text-gilt-light" liston="var(--color-sage-light)" />
+          <Logo size={30} liston="var(--color-gilt-light)" />
         </div>
 
         <h1
