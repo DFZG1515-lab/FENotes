@@ -3,6 +3,7 @@ import Header from './Header';
 import BottomNav from './BottomNav';
 import Sidebar from './Sidebar';
 import FAB from './FAB';
+import Diagnostico from './Diagnostico';
 
 export default function Layout() {
   const location = useLocation();
@@ -37,6 +38,7 @@ export default function Layout() {
 
         {!esEditor && (location.pathname === '/notas' || location.pathname === '/versiculos') && <FAB />}
         {!esEditor && !esDetalleNota && <BottomNav />}
+        <Diagnostico />
       </div>
     </div>
   );
