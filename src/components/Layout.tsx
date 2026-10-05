@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Outlet, useLocation, useMatch } from 'react-router-dom';
 import Header from './Header';
 import BottomNav from './BottomNav';
@@ -10,6 +11,13 @@ export default function Layout() {
   const esDetalleNota = Boolean(useMatch('/nota/:id'));
   const esDetalleVersiculo = location.pathname === '/versiculo';
   const enNotas = location.pathname === '/notas' || esDetalleNota;
+
+  // La franja de la hora en iOS toma el theme-color: lo igualamos al fondo de arriba de cada pantalla
+  // para que no se vea como una banda aparte. El editor y la nota abierta usan el blanco de página.
+  const colorBarra = esEditor || esDetalleNota ? '#fbf8f2' : '#f4efe4';
+  useEffect(() => {
+    document.getElementById('meta-tema')?.setAttribute('content', colorBarra);
+  }, [colorBarra]);
 
   // Las vistas de notas comparten un solo panel dividido: no reanimamos al cambiar de nota.
   const claveAnimacion = enNotas ? 'notas' : location.pathname;
