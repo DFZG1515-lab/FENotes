@@ -23,7 +23,7 @@ export default function Layout() {
 
         <main
           className={`flex min-h-0 flex-1 flex-col ${
-            esEditor ? '' : 'pb-24 lg:pb-0'
+            esEditor ? '' : 'pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-0'
           } lg:overflow-hidden`}
         >
           <div
