@@ -2,13 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import { execSync } from 'node:child_process'
 
 // https://vite.dev/config/
 export default defineConfig({
-  define: {
-    __VERSION__: JSON.stringify(execSync('git rev-parse --short HEAD').toString().trim()),
-  },
   plugins: [
     react(),
     tailwindcss(),

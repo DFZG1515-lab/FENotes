@@ -294,7 +294,7 @@ export default function NuevaNota() {
   return (
     <div className="flex min-h-dvh flex-col bg-page lg:h-dvh lg:border-t-[3px] lg:border-gilt-light">
       {/* Barra superior */}
-      <header className="safe-top sticky top-0 z-20 flex h-[60px] items-center justify-between border-b border-line bg-page/95 px-5 backdrop-blur lg:static lg:h-16 lg:px-8">
+      <header className="safe-top sticky top-0 z-20 flex h-[calc(60px+env(safe-area-inset-top))] items-center justify-between border-b border-line bg-page/95 px-5 backdrop-blur lg:static lg:h-16 lg:px-8">
         <Link to={rutaCancelar} className="flex items-center gap-1 text-[15px] font-medium text-ink-soft lg:text-sm lg:font-semibold">
           <ChevronLeft size={16} className="hidden lg:block" />
           <span className="lg:hidden">Cancelar</span>
