@@ -1,18 +1,45 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useMatch } from 'react-router-dom';
-import { Search, NotebookText, Star } from 'lucide-react';
+import { Link, useLocation, useMatch } from 'react-router-dom';
+import { ChevronLeft, NotebookText, Search } from 'lucide-react';
 import { deleteNota, EVENTO_NOTAS_CAMBIARON, getNotas } from '../lib/storage';
 import NotaCard from '../components/NotaCard';
 import SwipeableRow from '../components/SwipeableRow';
 import Logo from '../components/Logo';
+import type { Nota } from '../types';
+
+type Filtro = 'todas' | 'destacadas' | 'resumen';
+
+const FILTROS: { valor: Filtro; etiqueta: string }[] = [
+  { valor: 'todas', etiqueta: 'Todas' },
+  { valor: 'destacadas', etiqueta: 'Destacadas' },
+  { valor: 'resumen', etiqueta: 'Con resumen' },
+];
+
+function mesDe(fecha: string): string {
+  const texto = new Date(fecha + 'T00:00:00').toLocaleDateString('es', { month: 'long', year: 'numeric' });
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+/** Agrupa notas (ya ordenadas por fecha) en bloques por mes. */
+function agruparPorMes(notas: Nota[]): { mes: string; notas: Nota[] }[] {
+  const grupos: { mes: string; notas: Nota[] }[] = [];
+  for (const nota of notas) {
+    const mes = mesDe(nota.fecha);
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo?.mes === mes) ultimo.notas.push(nota);
+    else grupos.push({ mes, notas: [nota] });
+  }
+  return grupos;
+}
 
 export default function Inicio() {
   const [notas, setNotas] = useState(getNotas);
   const [busqueda, setBusqueda] = useState('');
-  const [filtroChip, setFiltroChip] = useState<string | null>(null);
-  const [soloDestacadas, setSoloDestacadas] = useState(false);
+  const [filtro, setFiltro] = useState<Filtro>('todas');
   const [notaPendienteEliminar, setNotaPendienteEliminar] = useState<string | null>(null);
   const idAbierta = useMatch('/nota/:id')?.params.id;
+  // Desde la lupa de Inicio llegamos con el buscador enfocado.
+  const enfocarBusqueda = Boolean((useLocation().state as { buscar?: boolean } | null)?.buscar);
 
   useEffect(() => {
     const recargar = () => setNotas(getNotas());
@@ -20,19 +47,10 @@ export default function Inicio() {
     return () => window.removeEventListener(EVENTO_NOTAS_CAMBIARON, recargar);
   }, []);
 
-  const chips = useMemo(() => {
-    const valores = new Set<string>();
-    notas.forEach((n) => {
-      if (n.predicador) valores.add(n.predicador);
-      if (n.iglesia) valores.add(n.iglesia);
-    });
-    return Array.from(valores).slice(0, 10);
-  }, [notas]);
-
   const filtradas = useMemo(() => {
     let resultado = notas;
-    if (soloDestacadas) resultado = resultado.filter((n) => n.destacada);
-    if (filtroChip) resultado = resultado.filter((n) => n.predicador === filtroChip || n.iglesia === filtroChip);
+    if (filtro === 'destacadas') resultado = resultado.filter((n) => n.destacada);
+    if (filtro === 'resumen') resultado = resultado.filter((n) => n.resumen);
     const q = busqueda.trim().toLowerCase();
     if (q) {
       resultado = resultado.filter((n) =>
@@ -43,12 +61,9 @@ export default function Inicio() {
       );
     }
     return resultado;
-  }, [notas, busqueda, filtroChip, soloDestacadas]);
+  }, [notas, busqueda, filtro]);
 
-  const totalDestacadas = notas.filter((n) => n.destacada).length;
-  const conteo =
-    `${notas.length} ${notas.length === 1 ? 'nota' : 'notas'}` +
-    (totalDestacadas > 0 ? ` · ${totalDestacadas} ${totalDestacadas === 1 ? 'destacada' : 'destacadas'}` : '');
+  const grupos = useMemo(() => agruparPorMes(filtradas), [filtradas]);
 
   function handleEliminar() {
     if (!notaPendienteEliminar) return;
@@ -56,26 +71,28 @@ export default function Inicio() {
     setNotaPendienteEliminar(null);
   }
 
-  const claseChip = (activo: boolean) =>
-    `flex h-[30px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-xs font-medium transition-colors ${
-      activo ? 'border-ribbon bg-ribbon/10 text-ribbon' : 'border-line bg-page text-ink-muted hover:bg-cream-dark/40'
-    }`;
-
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-baseline justify-between px-5 pb-2.5 pt-3 lg:px-6 lg:pt-7">
-        <h2 className="font-serif text-[30px] font-medium tracking-tight text-ink lg:text-[28px]">Notas</h2>
-        <span className="text-[13px] text-ink-muted">{conteo}</span>
+      <div className="px-5 pt-1 lg:px-6 lg:pt-7">
+        <Link to="/" className="-ml-1 flex w-fit items-center gap-0.5 text-sm font-semibold text-ribbon lg:hidden">
+          <ChevronLeft size={16} strokeWidth={2.4} />
+          Inicio
+        </Link>
+        <div className="flex items-baseline justify-between pb-3 pt-1.5">
+          <h2 className="font-serif text-[30px] font-medium tracking-tight text-ink lg:text-[28px]">Todas las notas</h2>
+          <span className="text-[13px] text-ink-muted">{notas.length}</span>
+        </div>
       </div>
 
-      <div className="relative px-5 pb-2.5 lg:px-4">
+      <div className="relative px-5 lg:px-4">
         <label htmlFor="buscar-notas" className="sr-only">
           Buscar notas
         </label>
-        <Search size={16} className="pointer-events-none absolute left-8 top-1/2 -translate-y-[calc(50%+5px)] text-ink-muted lg:left-7" />
+        <Search size={16} className="pointer-events-none absolute left-8 top-1/2 -translate-y-1/2 text-ink-muted lg:left-7" />
         <input
           id="buscar-notas"
           type="search"
+          autoFocus={enfocarBusqueda}
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Predicador, tema o versículo"
@@ -83,28 +100,24 @@ export default function Inicio() {
         />
       </div>
 
-      {(chips.length > 0 || totalDestacadas > 0) && (
-        <div className="scroll-x flex gap-1.5 overflow-x-auto px-5 pb-3 lg:flex-wrap lg:px-4">
-          {totalDestacadas > 0 && (
-            <button type="button" onClick={() => setSoloDestacadas((v) => !v)} className={claseChip(soloDestacadas)}>
-              <Star size={11} fill={soloDestacadas ? 'currentColor' : 'none'} />
-              Destacadas
-            </button>
-          )}
-          {chips.map((valor) => (
-            <button
-              key={valor}
-              type="button"
-              onClick={() => setFiltroChip((actual) => (actual === valor ? null : valor))}
-              className={claseChip(filtroChip === valor)}
-            >
-              {valor}
-            </button>
-          ))}
-        </div>
-      )}
+      <div role="tablist" aria-label="Filtrar notas" className="mx-5 mt-2.5 grid grid-cols-3 rounded-[10px] bg-cream-dark p-0.5 lg:mx-4">
+        {FILTROS.map(({ valor, etiqueta }) => (
+          <button
+            key={valor}
+            type="button"
+            role="tab"
+            aria-selected={filtro === valor}
+            onClick={() => setFiltro(valor)}
+            className={`rounded-lg py-1.5 text-[13px] font-semibold transition-colors ${
+              filtro === valor ? 'bg-page text-ink shadow-[0_1px_2px_rgba(34,28,24,0.08)]' : 'text-ink-muted'
+            }`}
+          >
+            {etiqueta}
+          </button>
+        ))}
+      </div>
 
-      <div className="min-h-0 flex-1 px-4 pb-6 lg:overflow-y-auto lg:px-3 lg:pb-4">
+      <div className="min-h-0 flex-1 px-4 pb-6 pt-1 lg:overflow-y-auto lg:px-3 lg:pb-4">
         {filtradas.length === 0 ? (
           <div className="mt-16 flex flex-col items-center gap-4 px-4 text-center">
             {notas.length === 0 ? (
@@ -122,18 +135,25 @@ export default function Inicio() {
             ) : (
               <>
                 <NotebookText size={34} strokeWidth={1.5} className="text-ink-muted/50" />
-                <p className="max-w-[240px] text-sm text-ink-muted">No hay notas que coincidan con esa búsqueda.</p>
+                <p className="max-w-[240px] text-sm text-ink-muted">
+                  {busqueda.trim() ? 'No hay notas que coincidan con esa búsqueda.' : 'No hay notas en este filtro.'}
+                </p>
               </>
             )}
           </div>
         ) : (
-          <div className="flex flex-col gap-2 lg:gap-1">
-            {filtradas.map((nota) => (
-              <SwipeableRow key={nota.id} onDelete={() => setNotaPendienteEliminar(nota.id)}>
-                <NotaCard nota={nota} seleccionada={nota.id === idAbierta} />
-              </SwipeableRow>
-            ))}
-          </div>
+          grupos.map((grupo) => (
+            <section key={grupo.mes}>
+              <h3 className="eyebrow px-1 pb-2 pt-4 text-ink-muted">{grupo.mes}</h3>
+              <div className="flex flex-col gap-2 lg:gap-1">
+                {grupo.notas.map((nota) => (
+                  <SwipeableRow key={nota.id} onDelete={() => setNotaPendienteEliminar(nota.id)}>
+                    <NotaCard nota={nota} seleccionada={nota.id === idAbierta} />
+                  </SwipeableRow>
+                ))}
+              </div>
+            </section>
+          ))
         )}
       </div>
 

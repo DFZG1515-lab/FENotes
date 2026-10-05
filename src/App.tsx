@@ -4,8 +4,8 @@ import Layout from './components/Layout';
 import NotasSplit from './components/NotasSplit';
 import NotasVacio from './components/NotasVacio';
 import Splash from './components/Splash';
-import Devocional from './pages/Devocional';
 import Inicio from './pages/Inicio';
+import Principal from './pages/Principal';
 import NuevaNota from './pages/NuevaNota';
 import DetalleNota from './pages/DetalleNota';
 import Versiculos from './pages/Versiculos';
@@ -34,8 +34,8 @@ function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<Devocional />} />
         <Route element={<Layout />}>
+          <Route path="/" element={<Principal />} />
           <Route element={<NotasSplit lista={<Inicio />} />}>
             <Route path="/notas" element={<NotasVacio />} />
             <Route path="/nota/:id" element={<DetalleNota />} />

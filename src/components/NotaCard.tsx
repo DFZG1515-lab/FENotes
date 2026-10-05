@@ -13,17 +13,16 @@ interface Props {
 }
 
 export default function NotaCard({ nota, seleccionada = false }: Props) {
-  const preview = nota.resumen?.ideaCentral || nota.contenido;
   const meta = [nota.predicador, nota.iglesia].filter(Boolean).join(' · ');
 
   return (
     <Link
       to={`/nota/${nota.id}`}
       aria-current={seleccionada ? 'page' : undefined}
-      className={`relative block rounded-xl border py-3.5 pl-6 pr-4 transition-colors active:bg-cream-dark/60 ${
+      className={`relative block rounded-2xl py-3 pl-6 pr-4 transition-colors active:bg-cream-dark/60 lg:rounded-xl ${
         seleccionada
-          ? 'border-line bg-page shadow-[0_1px_2px_rgba(34,28,24,0.05)]'
-          : 'border-line bg-page lg:border-transparent lg:bg-transparent lg:hover:bg-page/70'
+          ? 'bg-page shadow-[0_1px_2px_rgba(34,28,24,0.06)]'
+          : 'bg-page shadow-[0_1px_2px_rgba(34,28,24,0.06)] lg:bg-transparent lg:shadow-none lg:hover:bg-page/70'
       }`}
     >
       {/* En celular el listón marca las destacadas; en escritorio, la nota abierta. */}
@@ -49,7 +48,6 @@ export default function NotaCard({ nota, seleccionada = false }: Props) {
 
       {meta && <p className="mt-1 text-[13px] text-ink-muted">{meta}</p>}
 
-      {preview && <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-ink-muted">{preview}</p>}
     </Link>
   );
 }

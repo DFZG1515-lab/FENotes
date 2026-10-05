@@ -3,7 +3,6 @@ import { Outlet, useLocation, useMatch } from 'react-router-dom';
 import Header from './Header';
 import BottomNav from './BottomNav';
 import Sidebar from './Sidebar';
-import FAB from './FAB';
 
 export default function Layout() {
   const location = useLocation();
@@ -43,7 +42,6 @@ export default function Layout() {
           </div>
         </main>
 
-        {!esEditor && (location.pathname === '/notas' || location.pathname === '/versiculos') && <FAB />}
         {!esEditor && !esDetalleNota && <BottomNav />}
       </div>
     </div>

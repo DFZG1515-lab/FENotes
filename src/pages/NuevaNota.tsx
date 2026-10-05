@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ChevronDown, ChevronLeft, Loader2, Plus, Send, Sparkles } from 'lucide-react';
+import { BookOpen, ChevronDown, ChevronLeft, Loader2, Pencil, Plus, Send, Sparkles, Star } from 'lucide-react';
 import VersiculoMargen from '../components/VersiculoMargen';
 import Logo from '../components/Logo';
 import { AsistenteError, enviarMensajeEnNota } from '../lib/asistente';
@@ -66,8 +66,10 @@ export default function NuevaNota() {
   const ignorados = useRef(new Set<string>());
   const autoDetectados = useRef(new Set<string>());
 
+  // Herramienta abierta en la barra inferior (celular)
+  const [panel, setPanel] = useState<'versiculos' | 'preguntar' | null>(null);
+
   // Chat de IA dentro de la nota
-  const [chatAbierto, setChatAbierto] = useState(false);
   const [chatMensajes, setChatMensajes] = useState<MensajeChat[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [chatCargando, setChatCargando] = useState(false);
@@ -86,7 +88,7 @@ export default function NuevaNota() {
     setChatInput('');
     setChatError('');
     setChatCargando(true);
-    setChatAbierto(true);
+    setPanel('preguntar');
     try {
       const respuesta = await enviarMensajeEnNota(pregunta, chatMensajes, {
         predicador: nota.predicador,
@@ -167,13 +169,10 @@ export default function NuevaNota() {
   }
 
   const puedeGuardar = nota.contenido.trim().length > 0;
-  const rutaCancelar = editando ? `/nota/${id}` : '/notas';
-  const resumenMeta = [
-    formatearFechaCorta(nota.fecha),
-    nota.iglesia || 'Sin iglesia',
-    nota.predicador || 'Sin predicador',
-    nota.tema || 'sin tema',
-  ];
+  const rutaCancelar = editando ? `/nota/${id}` : '/';
+  const resumenMeta = [nota.fecha === hoyISO() ? 'Hoy' : formatearFechaCorta(nota.fecha), nota.iglesia, nota.predicador]
+    .filter(Boolean)
+    .join(' · ');
 
   const campos = (
     <>
@@ -268,7 +267,6 @@ export default function NuevaNota() {
           id="pregunta-ia"
           value={chatInput}
           onChange={(e) => setChatInput(e.target.value)}
-          onFocus={() => setChatAbierto(true)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
@@ -314,30 +312,24 @@ export default function NuevaNota() {
             onClick={guardar}
             className="h-9 rounded-full bg-ribbon px-4 text-sm font-semibold text-white hover:bg-ribbon-dark disabled:opacity-40 lg:h-10 lg:rounded-[10px] lg:px-[18px]"
           >
-            <span className="lg:hidden">Guardar</span>
+            <span className="lg:hidden">Listo</span>
             <span className="hidden lg:inline">Guardar nota</span>
           </button>
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col pb-[calc(200px+env(safe-area-inset-bottom))] lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-x-12 lg:px-16 lg:pb-8 lg:pt-7">
+      <div className={`flex min-h-0 flex-1 flex-col ${panel ? 'pb-[calc(280px+env(safe-area-inset-bottom))]' : 'pb-[calc(96px+env(safe-area-inset-bottom))]'} lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-x-12 lg:px-16 lg:pb-8 lg:pt-7`}>
         {/* Columna de escritura */}
         <div className="flex min-h-0 flex-col px-5 pt-4 lg:px-0 lg:pt-0">
           <button
             type="button"
             onClick={() => setMetaAbierta((v) => !v)}
             aria-expanded={metaAbierta}
-            className="flex w-full items-center justify-between rounded-[10px] border border-line bg-paper px-3.5 py-3 text-left lg:hidden"
+            className="flex max-w-full items-center gap-1.5 self-start rounded-full bg-paper px-3 py-1.5 text-left text-[13px] font-semibold text-ink-muted lg:hidden"
           >
-            <span className="flex min-w-0 flex-col gap-0.5">
-              <span className="eyebrow truncate text-ink-muted">
-                {resumenMeta[0]} · {resumenMeta[1]}
-              </span>
-              <span className="truncate text-sm font-semibold text-ink">
-                {resumenMeta[2]} · {resumenMeta[3]}
-              </span>
-            </span>
-            <ChevronDown size={16} className={`shrink-0 text-ink-muted transition-transform ${metaAbierta ? 'rotate-180' : ''}`} />
+            <Pencil size={12} className="shrink-0" />
+            <span className="truncate">{resumenMeta}</span>
+            <ChevronDown size={14} className={`shrink-0 transition-transform ${metaAbierta ? 'rotate-180' : ''}`} />
           </button>
 
           <div
@@ -425,51 +417,101 @@ export default function NuevaNota() {
         </aside>
       </div>
 
-      {/* Panel inferior (celular): versículos al margen + pregunta a la IA */}
-      <div
-        className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-paper lg:hidden"
-        style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom))' }}
-      >
-        {chatAbierto && (chatMensajes.length > 0 || chatCargando || chatError) && (
-          <div className="flex max-h-56 flex-col gap-2.5 overflow-y-auto border-b border-line px-5 py-3">{chatMensajesUI}</div>
+      {/* Barra inferior (celular): tres herramientas; cada una abre su panel encima */}
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-page lg:hidden">
+        {panel === 'versiculos' && (
+          <div className="border-b border-line bg-paper pb-3 pt-2.5">
+            <div className="eyebrow px-5 pb-2 text-gilt">Versículos de esta nota</div>
+            <div className="scroll-x flex gap-2 overflow-x-auto px-5">
+              {nota.versiculos.map((v) => (
+                <VersiculoMargen
+                  key={v.id}
+                  referencia={v.referencia}
+                  variante="chip"
+                  resaltado={v.id === ultimoDetectado}
+                  onRemove={() => quitarVersiculo(v.id)}
+                />
+              ))}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  agregarVersiculo();
+                }}
+                className="flex shrink-0 items-center gap-1 rounded-full border border-dashed border-gilt-light pl-3 pr-1"
+              >
+                <Plus size={13} strokeWidth={2.4} className="text-ink-muted" />
+                <label htmlFor="agregar-versiculo-movil" className="sr-only">
+                  Agregar versículo
+                </label>
+                <input
+                  id="agregar-versiculo-movil"
+                  value={nuevoVersiculo}
+                  onChange={(e) => setNuevoVersiculo(e.target.value)}
+                  placeholder="Agregar"
+                  className="h-8 w-[120px] bg-transparent text-base font-semibold text-ink placeholder:text-ink-muted focus:outline-none"
+                />
+              </form>
+            </div>
+            {nota.versiculos.length === 0 && (
+              <p className="px-5 pt-2 text-xs text-ink-muted">Escribe una cita como Juan 3:16 y aparecerá aquí sola.</p>
+            )}
+          </div>
         )}
-        <div className="eyebrow flex items-center gap-2 px-5 pb-2 pt-2.5 text-gilt">
-          <span>Al margen</span>
-          <span className="font-medium normal-case tracking-normal text-ink-muted">
-            {nota.versiculos.length} {nota.versiculos.length === 1 ? 'detectado' : 'detectados'}
-          </span>
-        </div>
-        <div className="scroll-x flex gap-2 overflow-x-auto px-5 pb-3">
-          {nota.versiculos.map((v) => (
-            <VersiculoMargen
-              key={v.id}
-              referencia={v.referencia}
-              variante="chip"
-              resaltado={v.id === ultimoDetectado}
-              onRemove={() => quitarVersiculo(v.id)}
-            />
-          ))}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              agregarVersiculo();
-            }}
-            className="flex shrink-0 items-center gap-1 rounded-full border border-dashed border-gilt-light pl-3 pr-1"
+        {panel === 'preguntar' && (
+          <div className="border-b border-line bg-paper pb-3">
+            {(chatMensajes.length > 0 || chatCargando || chatError) ? (
+              <div className="flex max-h-56 flex-col gap-2.5 overflow-y-auto px-5 py-3">{chatMensajesUI}</div>
+            ) : (
+              <p className="px-5 pb-2 pt-3 text-xs leading-relaxed text-ink-muted">
+                Pregunta sobre un versículo o el tema del sermón mientras anotas.
+              </p>
+            )}
+            <div className="px-5">{chatInputUI}</div>
+          </div>
+        )}
+        <div
+          className="grid grid-cols-3 px-4 pt-1.5"
+          style={{ paddingBottom: 'calc(6px + env(safe-area-inset-bottom))' }}
+        >
+          <button
+            type="button"
+            onClick={() => setPanel((p) => (p === 'versiculos' ? null : 'versiculos'))}
+            aria-expanded={panel === 'versiculos'}
+            className={`relative flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-semibold ${
+              panel === 'versiculos' ? 'bg-paper text-ink' : 'text-ink-muted'
+            }`}
           >
-            <Plus size={13} strokeWidth={2.4} className="text-ink-muted" />
-            <label htmlFor="agregar-versiculo-movil" className="sr-only">
-              Agregar versículo
-            </label>
-            <input
-              id="agregar-versiculo-movil"
-              value={nuevoVersiculo}
-              onChange={(e) => setNuevoVersiculo(e.target.value)}
-              placeholder="Agregar"
-              className="h-8 w-[120px] bg-transparent text-base font-semibold text-ink placeholder:text-ink-muted focus:outline-none"
-            />
-          </form>
+            <BookOpen size={20} strokeWidth={1.9} />
+            Versículos
+            {nota.versiculos.length > 0 && (
+              <span className="absolute right-[calc(50%-22px)] top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gilt px-1 text-[10px] font-bold text-white">
+                {nota.versiculos.length}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setPanel((p) => (p === 'preguntar' ? null : 'preguntar'))}
+            aria-expanded={panel === 'preguntar'}
+            className={`flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-semibold ${
+              panel === 'preguntar' ? 'bg-paper text-ink' : 'text-ink-muted'
+            }`}
+          >
+            <Sparkles size={20} strokeWidth={1.9} />
+            Preguntar
+          </button>
+          <button
+            type="button"
+            onClick={() => actualizar('destacada', !nota.destacada)}
+            aria-pressed={Boolean(nota.destacada)}
+            className={`flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-semibold ${
+              nota.destacada ? 'text-ribbon' : 'text-ink-muted'
+            }`}
+          >
+            <Star size={20} strokeWidth={1.9} fill={nota.destacada ? 'currentColor' : 'none'} />
+            {nota.destacada ? 'Destacada' : 'Destacar'}
+          </button>
         </div>
-        <div className="px-5">{chatInputUI}</div>
       </div>
     </div>
   );

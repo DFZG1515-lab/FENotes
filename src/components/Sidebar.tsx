@@ -1,10 +1,10 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { BookOpen, BookMarked, NotebookText, Plus, SlidersHorizontal } from 'lucide-react';
+import { BookMarked, House, NotebookText, Plus, SlidersHorizontal } from 'lucide-react';
 import Logo from './Logo';
 
 const ITEMS = [
-  { to: '/', label: 'Devocional de hoy', icon: BookOpen, activo: (p: string) => p === '/' },
+  { to: '/', label: 'Inicio', icon: House, activo: (p: string) => p === '/' },
   { to: '/notas', label: 'Notas', icon: NotebookText, activo: (p: string) => p === '/notas' || p.startsWith('/nota/') },
   { to: '/versiculos', label: 'Versículos', icon: BookMarked, activo: (p: string) => p.startsWith('/versiculo') },
 ];
