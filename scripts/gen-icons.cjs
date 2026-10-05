@@ -2,17 +2,18 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 
-const BG = '#5b7a63'; // sage
-const FG = '#faf7f2'; // cream
+const BG = '#1f1915'; // cuero
+const FG = '#c9aa5e'; // dorado
+const LISTON = '#9a3340'; // listón, un tono más claro para que se lea sobre el cuero
 
-// Logo: una hoja de notas con una cruz dibujada, estilo línea minimalista.
-// El bbox real del dibujo (incluyendo medio grosor de trazo) no es el viewBox nominal 24x24,
-// así que centramos según el área que realmente ocupan los trazos para que se vea balanceado.
-const STROKE_W = 1.4;
-const BBOX = { x: 3 - STROKE_W / 2, y: 2.5 - STROKE_W / 2, w: 13.5 + STROKE_W, h: 19 + STROKE_W };
+// Logo: una Biblia (tapa con lomo) con una cruz y un listón que cuelga por debajo.
+// Mismo dibujo que src/components/Logo.tsx. Centramos según el área que realmente
+// ocupan los trazos (incluyendo medio grosor y el listón) para que se vea balanceado.
+const STROKE_W = 1.3;
+const BBOX = { x: 4.5 - STROKE_W / 2, y: 2 - STROKE_W / 2, w: 13.5 + STROKE_W, h: 23.6 - (2 - STROKE_W / 2) };
 
 function buildSvg(size) {
-  const iconBoxRatio = 0.62;
+  const iconBoxRatio = 0.6;
   const iconSize = size * iconBoxRatio;
   const scale = iconSize / Math.max(BBOX.w, BBOX.h);
   const drawnW = BBOX.w * scale;
@@ -23,11 +24,14 @@ function buildSvg(size) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
   <rect width="${size}" height="${size}" fill="${BG}" />
   <g transform="translate(${offsetX} ${offsetY}) scale(${scale})" fill="none" stroke="${FG}" stroke-width="${STROKE_W}" stroke-linecap="round" stroke-linejoin="round">
-    <!-- hoja de notas -->
-    <rect x="3" y="2.5" width="13.5" height="19" rx="1.3" />
-    <!-- cruz dibujada en la hoja -->
-    <line x1="9.7" y1="6.2" x2="9.7" y2="16.5" />
-    <line x1="6.4" y1="9.3" x2="13" y2="9.3" />
+    <!-- tapa y lomo -->
+    <rect x="4.5" y="2" width="13.5" height="17.5" rx="1.3" />
+    <line x1="7.2" y1="2" x2="7.2" y2="19.5" />
+    <!-- cruz -->
+    <line x1="12.6" y1="6" x2="12.6" y2="14.2" />
+    <line x1="9.9" y1="8.6" x2="15.3" y2="8.6" />
+    <!-- listón -->
+    <path d="M14.4 20.15 H16.2 V23.6 L15.3 22.7 L14.4 23.6 Z" fill="${LISTON}" stroke="none" />
   </g>
 </svg>`;
 }

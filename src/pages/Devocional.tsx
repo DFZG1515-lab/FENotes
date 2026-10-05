@@ -138,7 +138,7 @@ export default function Devocional() {
         style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.8s ease' }}
       >
         <div className="flex items-center gap-2.5">
-          <Logo size={18} />
+          <Logo size={18} className="text-gilt-light" liston="var(--color-sage-light)" />
           <span className="hidden font-serif text-xl font-medium lg:inline">Daily Bread</span>
         </div>
         <span className="eyebrow" style={{ color: '#a89a86' }}>
