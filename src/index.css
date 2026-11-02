@@ -24,6 +24,16 @@
   --color-parchment: #d9cfc0;
   --color-parchment-muted: #8b7f70;
 
+  /* Celular: bloque vino arriba, fondo crema claro y líneas casi invisibles. */
+  --color-vino: #7a1f2b;
+  --color-crema: #faf3e8;
+  --color-crema-suave: #ead3c6;
+  --color-oro-claro: #e8c98a;
+  --color-fondo: #faf8f3;
+  --color-linea-suave: #ece6db;
+  --color-tinta-suave: #4f4840;
+  --color-gris: #6f675e;
+
   --color-cream: #f4efe4;
   --color-cream-dark: #ebe4d6;
   --color-surface: #fbf8f2;

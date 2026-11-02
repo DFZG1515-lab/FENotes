@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { BookOpen, ChevronDown, ChevronLeft, Loader2, Pencil, Plus, Send, Sparkles, Star } from 'lucide-react';
+import { BookOpen, ChevronDown, ChevronLeft, Loader2, MessageSquare, Plus, Send, Sparkles, X } from 'lucide-react';
 import VersiculoMargen from '../components/VersiculoMargen';
+import BloqueVino from '../components/BloqueVino';
 import Logo from '../components/Logo';
 import { AsistenteError, enviarMensajeEnNota } from '../lib/asistente';
 import type { MensajeChat } from '../types';
@@ -40,7 +41,8 @@ function notaVacia(): Nota {
 
 function formatearFechaCorta(fecha: string): string {
   const d = new Date(fecha + 'T00:00:00');
-  return d.toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' });
+  const texto = d.toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' });
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 const claseCampo =
@@ -216,7 +218,7 @@ export default function NuevaNota() {
           ))}
         </datalist>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="hidden lg:flex lg:flex-col lg:gap-1">
         <label htmlFor="tema" className="eyebrow text-ink-muted">
           Tema
         </label>
@@ -290,9 +292,45 @@ export default function NuevaNota() {
   );
 
   return (
-    <div className="flex min-h-dvh flex-col bg-page lg:h-dvh lg:border-t-[3px] lg:border-gilt-light">
-      {/* Barra superior */}
-      <header className="safe-top sticky top-0 z-20 flex h-[calc(60px+env(safe-area-inset-top))] items-center justify-between border-b border-line bg-page/95 px-5 backdrop-blur lg:static lg:h-16 lg:px-8">
+    <div className="flex min-h-dvh flex-col bg-fondo lg:h-dvh lg:border-t-[3px] lg:border-gilt-light lg:bg-page">
+      {/* Celular: cerrar, Listo, datos del servicio y tema dentro del bloque vino */}
+      <BloqueVino className="pb-5">
+        <div className="-ml-2.5 flex items-center justify-between">
+          <Link to={rutaCancelar} aria-label="Cerrar sin guardar" className="flex h-11 w-11 items-center justify-center text-crema">
+            <X size={21} strokeWidth={1.8} />
+          </Link>
+          <button
+            type="button"
+            disabled={!puedeGuardar}
+            onClick={guardar}
+            className="h-10 rounded-full bg-crema px-5 text-[15px] font-semibold text-vino disabled:opacity-50"
+          >
+            Listo
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMetaAbierta((v) => !v)}
+          aria-expanded={metaAbierta}
+          className="mt-2 flex max-w-full items-center gap-1.5 self-start text-left text-[13px] text-crema-suave"
+        >
+          <span className="truncate">{resumenMeta || 'Fecha, iglesia y predicador'}</span>
+          <ChevronDown size={14} className={`shrink-0 transition-transform ${metaAbierta ? 'rotate-180' : ''}`} />
+        </button>
+        <label htmlFor="tema-movil" className="sr-only">
+          Tema
+        </label>
+        <input
+          id="tema-movil"
+          value={nota.tema}
+          onChange={(e) => actualizar('tema', e.target.value)}
+          placeholder="Tema del sermón"
+          className="mt-1 w-full border-0 bg-transparent p-0 font-serif text-[32px] text-crema placeholder:text-crema-suave/60 focus:outline-none"
+        />
+      </BloqueVino>
+
+      {/* Escritorio */}
+      <header className="hidden h-16 items-center justify-between border-b border-line bg-page/95 px-8 lg:flex">
         <Link to={rutaCancelar} className="flex items-center gap-1 text-[15px] font-medium text-ink-soft lg:text-sm lg:font-semibold">
           <ChevronLeft size={16} className="hidden lg:block" />
           <span className="lg:hidden">Cancelar</span>
@@ -320,22 +358,11 @@ export default function NuevaNota() {
 
       <div className={`flex min-h-0 flex-1 flex-col ${panel ? 'pb-[calc(280px+env(safe-area-inset-bottom))]' : 'pb-[calc(96px+env(safe-area-inset-bottom))]'} lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-x-12 lg:px-16 lg:pb-8 lg:pt-7`}>
         {/* Columna de escritura */}
-        <div className="flex min-h-0 flex-col px-5 pt-4 lg:px-0 lg:pt-0">
-          <button
-            type="button"
-            onClick={() => setMetaAbierta((v) => !v)}
-            aria-expanded={metaAbierta}
-            className="flex max-w-full items-center gap-1.5 self-start rounded-full bg-paper px-3 py-1.5 text-left text-[13px] font-semibold text-ink-muted lg:hidden"
-          >
-            <Pencil size={12} className="shrink-0" />
-            <span className="truncate">{resumenMeta}</span>
-            <ChevronDown size={14} className={`shrink-0 transition-transform ${metaAbierta ? 'rotate-180' : ''}`} />
-          </button>
-
+        <div className="flex min-h-0 flex-col px-6 pt-4 lg:px-0 lg:pt-0">
           <div
             className={`${
               metaAbierta ? 'grid' : 'hidden'
-            } mt-3 grid-cols-1 gap-3 rounded-[10px] border border-line bg-paper p-3.5 lg:mt-0 lg:grid lg:grid-cols-[150px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:gap-5 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0`}
+            } mb-1 grid-cols-1 gap-3 border-b border-linea-suave pb-4 lg:mb-0 lg:grid lg:grid-cols-[150px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:gap-5 lg:border-0 lg:pb-0`}
           >
             {campos}
           </div>
@@ -418,11 +445,11 @@ export default function NuevaNota() {
       </div>
 
       {/* Barra inferior (celular): tres herramientas; cada una abre su panel encima */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-page lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-20 bg-fondo/95 backdrop-blur lg:hidden">
         {panel === 'versiculos' && (
-          <div className="border-b border-line bg-paper pb-3 pt-2.5">
-            <div className="eyebrow px-5 pb-2 text-gilt">Versículos de esta nota</div>
-            <div className="scroll-x flex gap-2 overflow-x-auto px-5">
+          <div className="rounded-t-[24px] border-t border-linea-suave pb-2 pt-3.5">
+            <div className="px-6 pb-2 font-serif text-[18px] text-ink">Versículos de esta nota</div>
+            <div className="scroll-x flex gap-2 overflow-x-auto px-6">
               {nota.versiculos.map((v) => (
                 <VersiculoMargen
                   key={v.id}
@@ -437,7 +464,7 @@ export default function NuevaNota() {
                   e.preventDefault();
                   agregarVersiculo();
                 }}
-                className="flex shrink-0 items-center gap-1 rounded-full border border-dashed border-gilt-light pl-3 pr-1"
+                className="flex shrink-0 items-center gap-1 rounded-full border border-dashed border-vino/40 pl-3 pr-1"
               >
                 <Plus size={13} strokeWidth={2.4} className="text-ink-muted" />
                 <label htmlFor="agregar-versiculo-movil" className="sr-only">
@@ -453,64 +480,60 @@ export default function NuevaNota() {
               </form>
             </div>
             {nota.versiculos.length === 0 && (
-              <p className="px-5 pt-2 text-xs text-ink-muted">Escribe una cita como Juan 3:16 y aparecerá aquí sola.</p>
+              <p className="px-6 pt-2 text-xs text-gris">Escribe una cita como Juan 3:16 y aparecerá aquí sola.</p>
             )}
           </div>
         )}
         {panel === 'preguntar' && (
-          <div className="border-b border-line bg-paper pb-3">
+          <div className="rounded-t-[24px] border-t border-linea-suave pb-1 pt-1">
             {(chatMensajes.length > 0 || chatCargando || chatError) ? (
-              <div className="flex max-h-56 flex-col gap-2.5 overflow-y-auto px-5 py-3">{chatMensajesUI}</div>
+              <div className="flex max-h-56 flex-col gap-2.5 overflow-y-auto px-6 py-3">{chatMensajesUI}</div>
             ) : (
-              <p className="px-5 pb-2 pt-3 text-xs leading-relaxed text-ink-muted">
+              <p className="px-6 pb-2 pt-3 text-xs leading-relaxed text-gris">
                 Pregunta sobre un versículo o el tema del sermón mientras anotas.
               </p>
             )}
-            <div className="px-5">{chatInputUI}</div>
+            <div className="px-6">{chatInputUI}</div>
           </div>
         )}
         <div
-          className="grid grid-cols-3 px-4 pt-1.5"
-          style={{ paddingBottom: 'calc(6px + env(safe-area-inset-bottom))' }}
+          className="flex items-center justify-between gap-3 px-6 pt-3"
+          style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom))' }}
         >
-          <button
-            type="button"
-            onClick={() => setPanel((p) => (p === 'versiculos' ? null : 'versiculos'))}
-            aria-expanded={panel === 'versiculos'}
-            className={`relative flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-semibold ${
-              panel === 'versiculos' ? 'bg-paper text-ink' : 'text-ink-muted'
-            }`}
+          <div
+            className="scroll-x flex min-w-0 gap-3.5 overflow-x-auto whitespace-nowrap font-serif text-base text-vino"
+            style={{ maskImage: 'linear-gradient(to right, black 82%, transparent)' }}
           >
-            <BookOpen size={20} strokeWidth={1.9} />
-            Versículos
-            {nota.versiculos.length > 0 && (
-              <span className="absolute right-[calc(50%-22px)] top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gilt px-1 text-[10px] font-bold text-white">
-                {nota.versiculos.length}
-              </span>
+            {nota.versiculos.length === 0 ? (
+              <span className="font-sans text-[13px] text-gris">Los versículos aparecen solos</span>
+            ) : (
+              nota.versiculos.map((v) => <span key={v.id}>{v.referencia}</span>)
             )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setPanel((p) => (p === 'preguntar' ? null : 'preguntar'))}
-            aria-expanded={panel === 'preguntar'}
-            className={`flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-semibold ${
-              panel === 'preguntar' ? 'bg-paper text-ink' : 'text-ink-muted'
-            }`}
-          >
-            <Sparkles size={20} strokeWidth={1.9} />
-            Preguntar
-          </button>
-          <button
-            type="button"
-            onClick={() => actualizar('destacada', !nota.destacada)}
-            aria-pressed={Boolean(nota.destacada)}
-            className={`flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-semibold ${
-              nota.destacada ? 'text-ribbon' : 'text-ink-muted'
-            }`}
-          >
-            <Star size={20} strokeWidth={1.9} fill={nota.destacada ? 'currentColor' : 'none'} />
-            {nota.destacada ? 'Destacada' : 'Destacar'}
-          </button>
+          </div>
+          <div className="flex shrink-0 gap-1.5">
+            <button
+              type="button"
+              onClick={() => setPanel((p) => (p === 'versiculos' ? null : 'versiculos'))}
+              aria-expanded={panel === 'versiculos'}
+              aria-label="Versículos de esta nota"
+              className={`flex h-11 w-11 items-center justify-center rounded-full border border-vino ${
+                panel === 'versiculos' ? 'bg-vino text-crema' : 'text-vino'
+              }`}
+            >
+              <BookOpen size={17} strokeWidth={1.8} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setPanel((p) => (p === 'preguntar' ? null : 'preguntar'))}
+              aria-expanded={panel === 'preguntar'}
+              aria-label="Preguntar sobre el sermón"
+              className={`flex h-11 w-11 items-center justify-center rounded-full ${
+                panel === 'preguntar' ? 'bg-ink text-crema' : 'bg-vino text-crema'
+              }`}
+            >
+              <MessageSquare size={17} strokeWidth={1.8} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

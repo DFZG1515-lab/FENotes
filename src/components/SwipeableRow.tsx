@@ -43,7 +43,7 @@ export default function SwipeableRow({ onDelete, children }: Props) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl lg:rounded-xl">
+    <div className="relative overflow-hidden lg:rounded-xl">
       <div
         className="absolute inset-y-0 right-0 flex items-center justify-center bg-[#9a3a3a] lg:hidden"
         style={{ width: ANCHO_BOTON }}
@@ -71,7 +71,7 @@ export default function SwipeableRow({ onDelete, children }: Props) {
           transition: arrastrando ? 'none' : 'transform 0.2s ease',
           touchAction: 'pan-y',
         }}
-        className="relative bg-paper"
+        className="relative bg-fondo lg:bg-paper"
       >
         {children}
       </div>

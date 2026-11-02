@@ -6,11 +6,19 @@ import { AIError, generarResumenIA } from '../lib/ai';
 import { sincronizarWidgetSilencioso } from '../lib/widgetSync';
 import ResumenCard from '../components/ResumenCard';
 import VersiculoMargen from '../components/VersiculoMargen';
+import BloqueVino from '../components/BloqueVino';
+import { claseBotonBloque } from '../lib/estilos';
+import { useTextoVersiculo } from '../lib/textoVersiculo';
 import type { EstiloResumen, Nota } from '../types';
 
 function formatearFecha(fecha: string): string {
   const d = new Date(fecha + 'T00:00:00');
   return d.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function formatearFechaMeta(fecha: string): string {
+  const texto = new Date(fecha + 'T00:00:00').toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' });
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 function formatearFechaCorta(fecha: string): string {
@@ -66,6 +74,8 @@ function DetalleNotaContenido({ id }: { id: string }) {
   const [generando, setGenerando] = useState(false);
   const [error, setError] = useState('');
   const [confirmandoEliminar, setConfirmandoEliminar] = useState(false);
+  const versiculoPrincipal = nota?.versiculos[0]?.referencia;
+  const textoPrincipal = useTextoVersiculo(versiculoPrincipal);
 
   if (!nota) {
     return (
@@ -119,8 +129,145 @@ function DetalleNotaContenido({ id }: { id: string }) {
   const meta = [nota.predicador, nota.iglesia].filter(Boolean).join(' · ');
   const enlaceVersiculo = { notaId: nota.id, fecha: formatearFechaCorta(nota.fecha), tema: nota.tema };
 
+  const metaMovil = [formatearFechaMeta(nota.fecha), nota.predicador].filter(Boolean).join(' · ');
+  const estilos = [
+    ['devocional', 'Devocional corto'],
+    ['estudio', 'Estudio detallado'],
+  ] as const;
+
   return (
-    <div className="flex flex-1 flex-col border-t-[3px] border-gilt-light lg:border-0">
+    <>
+    {/* Celular */}
+    <div className="flex flex-1 flex-col lg:hidden">
+      <BloqueVino>
+        <div className="-ml-2.5 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => navigate('/notas')}
+            aria-label="Volver a notas"
+            className="flex h-11 w-11 items-center justify-center text-crema"
+          >
+            <ChevronLeft size={22} />
+          </button>
+          <div className="flex gap-1.5">
+            <button
+              type="button"
+              onClick={handleToggleDestacada}
+              aria-label={nota.destacada ? 'Quitar destacado' : 'Marcar como destacada'}
+              className={claseBotonBloque}
+            >
+              <Star size={16} className="text-oro-claro" fill={nota.destacada ? 'currentColor' : 'none'} />
+            </button>
+            <button type="button" onClick={handleCompartir} aria-label="Compartir nota" className={claseBotonBloque}>
+              <Share2 size={16} />
+            </button>
+            <button type="button" onClick={() => navigate(`/nota/${nota!.id}/editar`)} aria-label="Editar nota" className={claseBotonBloque}>
+              <Pencil size={16} />
+            </button>
+            <button type="button" onClick={() => setConfirmandoEliminar(true)} aria-label="Eliminar nota" className={claseBotonBloque}>
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </div>
+        <span className="mt-2.5 text-[13px] text-crema-suave">{metaMovil}</span>
+        <h1 className="mt-1 font-serif text-[34px] font-normal leading-[1.08]">{nota.tema || 'Nota sin título'}</h1>
+        {versiculoPrincipal && textoPrincipal !== '' && (
+          <>
+            {textoPrincipal === null ? (
+              <div className="mt-4 h-14 animate-pulse rounded-xl bg-white/10" aria-label="Cargando versículo" />
+            ) : (
+              <p className="mt-3.5 line-clamp-4 font-serif text-[20px] italic leading-[1.4]">“{textoPrincipal}”</p>
+            )}
+            <Link
+              to="/versiculo"
+              state={{ referencia: versiculoPrincipal, ...enlaceVersiculo }}
+              className="mt-1.5 self-start font-serif text-base text-oro-claro"
+            >
+              {versiculoPrincipal}
+            </Link>
+          </>
+        )}
+      </BloqueVino>
+
+      <div className="flex flex-1 flex-col px-6 pt-5" style={{ paddingBottom: 'calc(28px + env(safe-area-inset-bottom))' }}>
+        <p className="whitespace-pre-wrap font-serif text-[19px] leading-[1.6] text-ink">{nota.contenido}</p>
+
+        {nota.versiculos.length > 1 && (
+          <section className="mt-7">
+            <h2 className="font-serif text-[21px] text-ink">Versículos</h2>
+            {nota.versiculos.slice(1).map((v) => (
+              <VersiculoMargen key={v.id} referencia={v.referencia} variante="margen" enlace={enlaceVersiculo} />
+            ))}
+          </section>
+        )}
+
+        {error && <p className="mt-5 text-sm text-[#7f2e2e]">{error}</p>}
+
+        {nota.resumen ? (
+          <section className="mt-7">
+            <div className="flex items-baseline justify-between">
+              <h2 className="font-serif text-[21px] text-ink">Resumen</h2>
+              <button
+                type="button"
+                onClick={handleGenerarResumen}
+                disabled={generando}
+                className="h-9 text-[13px] font-semibold text-gris disabled:opacity-50"
+              >
+                {generando ? 'Generando…' : 'Regenerar'}
+              </button>
+            </div>
+            <p className="mt-1 font-serif text-[18px] italic leading-snug text-tinta-suave">{nota.resumen.ideaCentral}</p>
+            {nota.resumen.puntosPrincipales.length > 0 && (
+              <>
+                <h3 className="mt-5 font-serif text-[19px] text-ink">Para la semana</h3>
+                <ol className="mt-1.5 flex flex-col gap-1.5">
+                  {nota.resumen.puntosPrincipales.map((p, i) => (
+                    <li key={i} className="flex gap-3 font-serif text-[17px] leading-snug text-ink">
+                      <span className="w-2.5 shrink-0 text-vino">{i + 1}</span>
+                      {p}
+                    </li>
+                  ))}
+                </ol>
+              </>
+            )}
+            {nota.resumen.aplicacion && (
+              <p className="mt-4 font-serif text-[17px] leading-relaxed text-tinta-suave">{nota.resumen.aplicacion}</p>
+            )}
+          </section>
+        ) : (
+          <section className="mt-auto pt-8">
+            <div className="flex gap-4" role="radiogroup" aria-label="Tipo de resumen">
+              {estilos.map(([valor, etiqueta]) => (
+                <button
+                  key={valor}
+                  type="button"
+                  role="radio"
+                  aria-checked={estilo === valor}
+                  onClick={() => setEstilo(valor)}
+                  className={`h-9 text-sm ${
+                    estilo === valor ? 'font-semibold text-ink underline decoration-vino decoration-2 underline-offset-[6px]' : 'text-gris'
+                  }`}
+                >
+                  {etiqueta}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={handleGenerarResumen}
+              disabled={generando}
+              className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full border border-vino text-[15px] font-semibold text-vino active:bg-vino/5 disabled:opacity-60"
+            >
+              {generando && <Loader2 size={16} className="animate-spin" />}
+              {generando ? 'Generando resumen…' : 'Resumir con IA'}
+            </button>
+          </section>
+        )}
+      </div>
+    </div>
+
+    {/* Escritorio */}
+    <div className="hidden flex-1 flex-col lg:flex">
       {/* Fila superior: volver (celular) o fecha (escritorio) + acciones */}
       <div className="safe-top flex items-center justify-between px-2 pt-2 lg:px-10 lg:pt-6">
         <button
@@ -239,6 +386,8 @@ function DetalleNotaContenido({ id }: { id: string }) {
         </div>
       </div>
 
+    </div>
+
       {confirmandoEliminar && (
         <div className="fixed inset-0 z-40 flex items-end justify-center bg-ink/40 px-4 pb-10 lg:items-center lg:pb-0">
           <div className="w-full max-w-[400px] rounded-2xl bg-page p-5 shadow-xl shadow-ink/20">
@@ -263,6 +412,6 @@ function DetalleNotaContenido({ id }: { id: string }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

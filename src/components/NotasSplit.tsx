@@ -20,7 +20,7 @@ export default function NotasSplit({ lista }: Props) {
         {lista}
       </section>
       <section
-        className={`${enDetalle ? 'flex' : 'hidden lg:flex'} min-h-0 min-w-0 flex-1 flex-col bg-page lg:h-full lg:overflow-y-auto lg:border-t-[3px] lg:border-gilt-light`}
+        className={`${enDetalle ? 'flex' : 'hidden lg:flex'} min-h-0 min-w-0 flex-1 flex-col bg-fondo lg:h-full lg:bg-page lg:overflow-y-auto lg:border-t-[3px] lg:border-gilt-light`}
       >
         <Outlet />
       </section>

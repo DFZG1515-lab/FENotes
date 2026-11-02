@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useMatch } from 'react-router-dom';
-import { ChevronLeft, NotebookText, Search } from 'lucide-react';
+import { useLocation, useMatch } from 'react-router-dom';
+import { NotebookText, Search } from 'lucide-react';
 import { deleteNota, EVENTO_NOTAS_CAMBIARON, getNotas } from '../lib/storage';
 import NotaCard from '../components/NotaCard';
 import SwipeableRow from '../components/SwipeableRow';
 import Logo from '../components/Logo';
+import BloqueVino from '../components/BloqueVino';
+import { claseBuscadorBloque } from '../lib/estilos';
 import type { Nota } from '../types';
 
 type Filtro = 'todas' | 'destacadas' | 'resumen';
@@ -40,6 +42,7 @@ export default function Inicio() {
   const idAbierta = useMatch('/nota/:id')?.params.id;
   // Desde la lupa de Inicio llegamos con el buscador enfocado.
   const enfocarBusqueda = Boolean((useLocation().state as { buscar?: boolean } | null)?.buscar);
+  const [esEscritorio] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
 
   useEffect(() => {
     const recargar = () => setNotas(getNotas());
@@ -73,34 +76,72 @@ export default function Inicio() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="px-5 pt-1 lg:px-6 lg:pt-7">
-        <Link to="/" className="-ml-1 flex w-fit items-center gap-0.5 text-sm font-semibold text-ribbon lg:hidden">
-          <ChevronLeft size={16} strokeWidth={2.4} />
-          Inicio
-        </Link>
+      <BloqueVino className="pb-2.5">
+        <div className="flex items-baseline justify-between">
+          <h1 className="font-serif text-[36px] font-normal leading-[1.05]">Notas</h1>
+          <span className="text-[13px] text-crema-suave">
+            {notas.length} {notas.length === 1 ? 'nota' : 'notas'}
+          </span>
+        </div>
+        <div className="relative mt-4">
+          <label htmlFor="buscar-notas-movil" className="sr-only">
+            Buscar notas
+          </label>
+          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-crema-suave" />
+          <input
+            id="buscar-notas-movil"
+            type="search"
+            autoFocus={enfocarBusqueda && !esEscritorio}
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Tema, predicador o versículo"
+            className={claseBuscadorBloque}
+          />
+        </div>
+        <div role="tablist" aria-label="Filtrar notas" className="-ml-2 mt-1.5 flex">
+          {FILTROS.map(({ valor, etiqueta }) => (
+            <button
+              key={valor}
+              type="button"
+              role="tab"
+              aria-selected={filtro === valor}
+              onClick={() => setFiltro(valor)}
+              className={`h-11 px-2 text-sm ${
+                filtro === valor
+                  ? 'font-semibold text-crema underline decoration-oro-claro decoration-2 underline-offset-[6px]'
+                  : 'text-crema-suave'
+              }`}
+            >
+              {etiqueta}
+            </button>
+          ))}
+        </div>
+      </BloqueVino>
+
+      <div className="hidden px-6 pt-7 lg:block">
         <div className="flex items-baseline justify-between pb-3 pt-1.5">
           <h2 className="font-serif text-[30px] font-medium tracking-tight text-ink lg:text-[28px]">Todas las notas</h2>
           <span className="text-[13px] text-ink-muted">{notas.length}</span>
         </div>
       </div>
 
-      <div className="relative px-5 lg:px-4">
+      <div className="relative hidden px-4 lg:block">
         <label htmlFor="buscar-notas" className="sr-only">
           Buscar notas
         </label>
-        <Search size={16} className="pointer-events-none absolute left-8 top-1/2 -translate-y-1/2 text-ink-muted lg:left-7" />
+        <Search size={16} className="pointer-events-none absolute left-7 top-1/2 -translate-y-1/2 text-ink-muted" />
         <input
           id="buscar-notas"
           type="search"
-          autoFocus={enfocarBusqueda}
+          autoFocus={enfocarBusqueda && esEscritorio}
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Predicador, tema o versículo"
-          className="h-[42px] w-full rounded-[10px] border border-line bg-page pl-9 pr-3 text-base text-ink placeholder:text-ink-muted/70 focus:border-gilt-light focus:outline-none lg:h-10 lg:text-sm"
+          className="h-10 w-full rounded-[10px] border border-line bg-page pl-9 pr-3 text-sm text-ink placeholder:text-ink-muted/70 focus:border-gilt-light focus:outline-none"
         />
       </div>
 
-      <div role="tablist" aria-label="Filtrar notas" className="mx-5 mt-2.5 grid grid-cols-3 rounded-[10px] bg-cream-dark p-0.5 lg:mx-4">
+      <div role="tablist" aria-label="Filtrar notas" className="mx-4 mt-2.5 hidden grid-cols-3 rounded-[10px] bg-cream-dark p-0.5 lg:grid">
         {FILTROS.map(({ valor, etiqueta }) => (
           <button
             key={valor}
@@ -117,7 +158,7 @@ export default function Inicio() {
         ))}
       </div>
 
-      <div className="min-h-0 flex-1 px-4 pb-6 pt-1 lg:overflow-y-auto lg:px-3 lg:pb-4">
+      <div className="min-h-0 flex-1 px-6 pb-6 pt-1 lg:overflow-y-auto lg:px-3 lg:pb-4">
         {filtradas.length === 0 ? (
           <div className="mt-16 flex flex-col items-center gap-4 px-4 text-center">
             {notas.length === 0 ? (
@@ -144,8 +185,8 @@ export default function Inicio() {
         ) : (
           grupos.map((grupo) => (
             <section key={grupo.mes}>
-              <h3 className="eyebrow px-1 pb-2 pt-4 text-ink-muted">{grupo.mes}</h3>
-              <div className="flex flex-col gap-2 lg:gap-1">
+              <h3 className="pt-4 font-serif text-[21px] text-ink lg:px-1 lg:pb-2 lg:font-sans lg:text-[11px] lg:font-semibold lg:uppercase lg:tracking-[0.1em] lg:text-ink-muted">{grupo.mes}</h3>
+              <div className="flex flex-col lg:gap-1">
                 {grupo.notas.map((nota) => (
                   <SwipeableRow key={nota.id} onDelete={() => setNotaPendienteEliminar(nota.id)}>
                     <NotaCard nota={nota} seleccionada={nota.id === idAbierta} />

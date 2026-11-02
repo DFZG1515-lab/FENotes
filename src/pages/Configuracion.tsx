@@ -123,7 +123,7 @@ export default function Configuracion() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[640px] px-5 pb-10 pt-3 lg:px-10 lg:pt-8">
+    <div className="mx-auto w-full max-w-[640px] px-5 pb-10 pt-[calc(env(safe-area-inset-top)+20px)] lg:px-10 lg:pt-8">
       <h2 className="mb-1 font-serif text-[30px] font-medium tracking-tight text-ink">Configuración</h2>
       <p className="mb-5 text-sm text-ink-muted">{total} notas guardadas en este dispositivo.</p>
 
